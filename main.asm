@@ -4,12 +4,6 @@
 .data
 
 
-exstart dw   160
-eystart dw   150
-xstart  dw   -64
-ystart  dw   300 
-x2start dw   200
-
 eW equ 50
 eH equ 50
 e DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
@@ -208,33 +202,79 @@ p2 DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
  DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 16, 16, 16, 16, 0, 0, 0, 0, 0, 0, 0
  DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
  DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+earthx              dw   160
+earthy              dw   150
+player1x            dw   -60
+player1y            dw   300
+player2y            dw   300 
+player2x            dw   200
+xplayer1velocity    dw   10
+yplayer1velocity    dw   10
 
- 
- 
- .code
+input       db     0ACh
+
+nomove          equ     0AAh
+updirection     equ     0ABh
+downdirection   equ     0ACh
+rightdirection  equ     0ADh
+leftdirection   equ     0AEh
+nomove2         equ     0AFh
+updirection2    equ     0BAh
+downdirection2  equ     0BBh
+rightdirection2 equ     0BCh
+leftdirection2  equ     0BDh
+
+
+arrowup     equ     4800h
+arrowdown   equ     5000h
+arrowright  equ     4D00h
+arrowleft   equ     4B00h
+Wkey        equ     77h
+Akey        equ     61h
+Skey        equ     73h
+Dkey        equ     64h
+
+.code
 Main Proc Far
 
 
 mov ax,@data
 mov ds,ax
 
+
+
+mov cx,1
+mov dl,160
+mov dh,60
+mov ah,2
+int 10h
+
+mov al,'O'
+mov ah,9h
+mov bl,0Eh
+int 10h
 mov ah,0
 mov al,13h
 mov bh,0
 int 10h
 
+
+maingameloop:
 call drawBack
 call DrawPlayer1
 call DrawPlayer2
+call delay
+call drawBack
+call checkinput
+call updateplayer1
+jmp maingameloop
 
-mov ah, 4ch
-int 21h
-
+endgame:
 Main ENDP
 
 
 
-drawBack Proc 
+drawBack Proc
 mov ah,0ch
 mov al,0fh
 mov bh,00h
@@ -252,8 +292,8 @@ cmp cx, 320
 jnz start
 
 mov ah,0bh
-mov cx,exstart
-mov dx, eystart
+mov cx,earthx
+mov dx, earthy
 
 add cx, ew
 add dx, eH
@@ -273,12 +313,12 @@ int 10h
 l:
 inc di
 dec cx
-cmp cx,exstart
+cmp cx,earthx
 jnz d
 
 add cx, ew
 dec dx
-cmp dx,eystart
+cmp dx,earthy
 jz t
 jnz d
 t:
@@ -286,10 +326,10 @@ RET
 drawBack ENDP
 
 
-DrawPlayer1 Proc 
+DrawPlayer1 Proc
 mov ah,0bh
-mov cx,xstart
-mov dx, ystart
+mov cx,player1x
+mov dx, player1y
 
 add cx, p1w
 add dx, p1H
@@ -309,12 +349,12 @@ int 10h
 loop1:
 inc di
 dec cx
-cmp cx,xstart
+cmp cx,player1x
 jnz draw1
 
 add cx, p1w
 dec dx
-cmp dx,ystart
+cmp dx,player1y
 jz terminate1
 jnz draw1
 
@@ -322,10 +362,10 @@ terminate1:
 RET
 DrawPlayer1 ENDP
 
-DrawPlayer2 Proc 
+DrawPlayer2 Proc
 mov ah,0bh
-mov cx,x2start
-mov dx, ystart
+mov cx,player2x
+mov dx, player2y
 
 add cx, p2w
 add dx, p2H
@@ -345,12 +385,12 @@ int 10h
 loop2:
 inc di
 dec cx
-cmp cx,x2start
+cmp cx,player2x
 jnz draw2
 
 add cx, p2w
 dec dx
-cmp dx,ystart
+cmp dx,player2y
 jz terminate2
 jnz draw2
 
@@ -358,5 +398,168 @@ terminate2:
 RET
 DrawPlayer2 ENDP
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;   Delay Procedure      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+delay proc
+push cx
+push dx
+push ax
+
+mov cx, 01h
+mov ah, 86h
+int 15h
+
+pop ax
+pop dx
+pop cx
+RET
+
+delay endp
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;; flush keyboard-buffer proc ;;;;;;
+flushkeybuffer proc 
+mov ah,0ch
+mov al,0
+int 21h
+RET
+flushkeybuffer endp
+;;;;;;;;;;;;;; CheckInput Procedure
+checkinput proc
+push ax 
+mov ah,01h
+int 16h
+cmp ax, arrowup
+jz up
+
+cmp ax, arrowdown
+jz down
+
+cmp ax, arrowright
+jz right
+
+cmp ax, arrowleft
+jz left
+jmp freeze
+
+up:
+call flushkeybuffer
+mov al, updirection
+mov input, al
+jmp endinput
+
+down:
+call flushkeybuffer
+mov al, downdirection
+mov input, al
+jmp endinput
+
+right:
+call flushkeybuffer
+mov al, rightdirection
+mov input, al
+jmp endinput
+
+left:
+call flushkeybuffer
+mov al, leftdirection
+mov input, al
+jmp endinput
+
+freeze:
+mov al, nomove
+mov input, al
+jmp endinput
+
+
+endinput:
+call flushkeybuffer
+pop ax
+RET
+checkinput ENDP
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;; clear player1 ;;;;;;;;;;;;;;;;
+clearplayer1 proc
+
+
+
+
+clearplayer1 endp
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;; update player 1 proc ;;;;;;;;;;;;;;;;
+updateplayer1 proc
+push bx
+
+mov bl,input
+cmp bl,updirection
+jz checkup1
+
+
+mov bl,input
+cmp bl,downdirection
+jz checkdown1
+
+mov bl,input
+cmp bl,rightdirection
+jz checkright1
+
+mov bl,input
+cmp bl,leftdirection
+jz checkleft1
+
+mov bl,input
+cmp bl, nomove
+jz endupdatep1
+
+checkup1:
+mov bx,player1y
+cmp bx,220
+jg moveup1
+jmp endupdatep1
+moveup1:
+sub bx,yplayer1velocity
+mov player1y, bx
+jmp endupdatep1
+
+checkdown1:
+mov bx,player1y
+cmp bx,340
+jl movedown1
+jmp endupdatep1
+movedown1:
+add bx,yplayer1velocity
+mov player1y, bx
+jmp endupdatep1
+
+checkleft1:
+mov bx,player1x
+cmp bx,-60
+jg moveleft1
+jmp endupdatep1
+moveleft1:
+sub bx,xplayer1velocity
+mov player1x, bx
+jmp endupdatep1
+
+checkright1:
+mov bx,player1x
+cmp bx,90
+jle moveright1
+jmp endupdatep1
+moveright1:
+add bx,xplayer1velocity
+mov player1x, bx
+jmp endupdatep1
+
+endupdatep1:
+pop bx
+RET
+updateplayer1 endp
 
 End main
+
+
