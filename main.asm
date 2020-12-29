@@ -397,7 +397,6 @@ RET
 DrawPlayer2 ENDP
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 ;;;;;;;;;;;;;;;;;;;   Delay proc nearedure      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 delay proc near
