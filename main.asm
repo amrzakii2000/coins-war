@@ -581,7 +581,7 @@ jmp nextupdate1
 
 checkright1:
 mov bx,player1x
-cmp bx,190
+cmp bx,160
 jle moveright1
 jmp nextupdate1
 moveright1:
@@ -632,7 +632,7 @@ jmp endupdateobjects
 
 checkleft2:
 mov bx,player2x
-cmp bx,-60
+cmp bx,-25
 jg moveleft2
 jmp endupdateobjects
 moveleft2:
