@@ -261,6 +261,11 @@ fireball2 DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
  DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
  DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 
+coinW equ 10
+coinH equ 10
+coin DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 18, 210, 211, 211, 210, 18, 0, 0, 0, 18, 139, 65, 66, 66, 65, 139, 18, 0, 0, 210, 65, 66, 43, 43, 66, 140, 187, 0 
+ DB 0, 211, 66, 43, 43, 43, 43, 42, 187, 0, 0, 211, 66, 43, 43, 43, 43, 42, 187, 0, 0, 210, 65, 66, 43, 43, 43, 140, 187, 0, 0, 18, 139, 140, 42, 42, 140, 139, 18, 0 
+ DB 0, 0, 18, 187, 187, 187, 187, 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 
 earthx              dw   160D
 earthy              dw   150D
@@ -329,6 +334,7 @@ maingameloop:
 call drawBack
 call DrawPlayer1
 call DrawPlayer2
+call Drawcoins
 call Drawfireball
 call Drawfireball2
 call getinput
@@ -547,7 +553,37 @@ terminate4:
 RET
 Drawfireball2 ENDP
 
+Drawcoins PROC near
 
+mov ah,0bh
+mov cx,coinW
+mov dx,coinH
+lea di,coin
+jmp loop5
+
+draw5:
+mov ah,0ch
+mov al, [di]
+mov bh, 00h
+
+cmp al,0
+jz loop5
+int 10h
+
+
+loop5:
+inc di
+dec cx
+jnz draw5
+
+add cx, coinW
+dec dx
+jz terminate5
+jnz draw5
+
+terminate5:
+RET
+Drawcoins ENDP
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;   Delay proc nearedure      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
