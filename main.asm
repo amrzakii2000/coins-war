@@ -334,11 +334,11 @@ maingameloop:
 call drawBack
 call DrawPlayer1
 call DrawPlayer2
-call Drawcoins
+;call Drawcoins
 call Drawfireball
 call Drawfireball2
-call getinput
 call delay
+call getinput
 call clearobjects
 call updateobjects
 jmp maingameloop
@@ -621,6 +621,7 @@ flushkeybuffer endp
 getinput proc near
 push ax 
 push bx
+
 mov ah,01h
 int 16h
 
