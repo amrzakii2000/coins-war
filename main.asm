@@ -232,7 +232,34 @@ fireball1 DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
  DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
  DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 
-
+fireball2W equ 32
+fireball2H equ 32
+fireball2 DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 
+ DB 0, 0, 0, 0, 0, 0, 57, 57, 0, 0, 0, 0, 56, 57, 57, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 57, 57 
+ DB 57, 57, 58, 58, 58, 57, 57, 57, 81, 81, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 57, 57, 57, 57, 57, 57, 57, 58, 58, 58, 57, 57, 58      
+ DB 81, 58, 58, 57, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 57, 57, 57, 57, 57, 57, 57, 57, 9, 9, 58, 58, 58, 81, 58, 58, 57, 0, 0, 0, 0 
+ DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 57, 57, 58, 58, 57, 57, 57, 9, 9, 9, 9, 57, 57, 58, 58, 58, 57, 57, 57, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 
+ DB 0, 58, 58, 57, 57, 58, 58, 57, 57, 9, 9, 9, 9, 9, 9, 9, 57, 58, 58, 58, 58, 57, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 58, 81, 58, 58, 58, 58, 58, 57       
+ DB 56, 9, 9, 9, 9, 9, 9, 9, 9, 58, 58, 58, 81, 81, 58, 58, 0, 0, 0, 0, 0, 0, 0, 0, 58, 81, 58, 58, 58, 58, 58, 57, 9, 9, 9, 9, 9, 9, 9, 9 
+ DB 9, 9, 9, 57, 81, 81, 58, 58, 0, 0, 0, 0, 0, 0, 58, 81, 58, 81, 81, 81, 58, 58, 57, 56, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 57, 58, 58, 58, 81         
+ DB 0, 0, 0, 58, 81, 58, 58, 81, 81, 58, 58, 58, 58, 58, 57, 57, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 56, 57, 58, 58, 81, 0, 0, 58, 58, 81, 81, 81, 58 
+ DB 58, 58, 58, 58, 58, 57, 57, 57, 9, 9, 9, 9, 9, 9, 9, 56, 57, 9, 9, 9, 57, 58, 58, 81, 0, 0, 58, 58, 81, 81, 81, 58, 58, 58, 58, 58, 58, 58, 57, 57 
+ DB 9, 9, 9, 9, 9, 9, 9, 57, 57, 57, 9, 9, 57, 58, 81, 58, 0, 0, 58, 58, 58, 58, 58, 81, 58, 58, 58, 58, 58, 58, 58, 56, 9, 9, 9, 9, 9, 57, 57, 57
+ DB 57, 57, 56, 9, 9, 58, 81, 58, 0, 0, 0, 0, 0, 0, 58, 81, 81, 81, 81, 58, 58, 58, 58, 57, 9, 9, 9, 9, 9, 57, 57, 57, 57, 57, 56, 9, 56, 58, 81, 81
+ DB 0, 0, 0, 0, 0, 0, 0, 58, 81, 58, 58, 58, 58, 58, 57, 57, 56, 9, 9, 9, 57, 57, 57, 57, 9, 9, 9, 9, 57, 81, 58, 58, 0, 0, 0, 0, 0, 0, 0, 58
+ DB 81, 58, 58, 58, 58, 58, 58, 56, 9, 9, 9, 57, 57, 9, 9, 9, 9, 9, 9, 9, 57, 81, 58, 58, 0, 0, 0, 0, 0, 0, 0, 0, 0, 35, 58, 57, 57, 58, 58, 57
+ DB 57, 56, 9, 9, 9, 9, 9, 9, 9, 9, 9, 57, 58, 81, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 56, 57, 57, 57, 58, 58, 58, 57, 9, 9, 9, 9, 9, 9
+ DB 9, 9, 57, 57, 58, 58, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 57, 57, 57, 57, 57, 58, 57, 57, 9, 9, 9, 9, 9, 9, 57, 58, 81, 58, 58, 0, 0
+ DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 57, 57, 57, 57, 57, 57, 57, 9, 9, 9, 9, 9, 58, 58, 58, 58, 81, 58, 58, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+ DB 0, 0, 0, 0, 0, 0, 57, 57, 57, 57, 57, 57, 57, 57, 57, 58, 58, 58, 81, 81, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+ DB 0, 57, 57, 57, 58, 58, 58, 58, 58, 81, 81, 58, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 81, 58, 81, 81
+ DB 81, 58, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+ DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+ DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+ DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+ DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+ DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+ DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 
 
 earthx              dw   160D
@@ -243,12 +270,14 @@ player2y            dw   300D
 player2x            dw   200D
 fireball1x          dw      ?
 fireball1y          dw      ?
+fireball2x          dw      ?
+fireball2y          dw      ?
 xplayer1velocity    dw   15
 yplayer1velocity    dw   15
 xplayer2velocity    dw   15
 yplayer2velocity    dw   15
-fireball1velocity   dw   20
-
+fireball1velocity   dw   10
+fireball2velocity   dw   10
 
 
 input           db          ?
@@ -260,7 +289,7 @@ rightdirection  equ     0ADh
 leftdirection   equ     0AEh
 fireball        equ     0AFH
 isfiring        db         0
-
+isfiring2        db         0
 arrowup     equ     4800h
 arrowdown   equ     5000h
 arrowright  equ     4D00h
@@ -270,7 +299,7 @@ Akey        equ     1E61h
 Skey        equ     1f73h
 Dkey        equ     2064h
 spacekey    equ     3920h
-
+enterkey    equ     1C0Dh
 .code
 Main proc Far
 
@@ -301,6 +330,7 @@ call drawBack
 call DrawPlayer1
 call DrawPlayer2
 call Drawfireball
+call Drawfireball2
 call getinput
 call delay
 call clearobjects
@@ -310,7 +340,6 @@ jmp maingameloop
 
 endgame:
 Main ENDP
-
 
 
 drawBack proc near
@@ -478,24 +507,70 @@ terminate3:
 RET
 Drawfireball ENDP
 
+Drawfireball2 proc near
+mov al,isfiring2
+cmp al,1
+jne terminate4
+
+mov ah,0bh
+mov cx,fireball2x
+mov dx, fireball2y
+
+add cx, fireball2W
+add dx, fireball2H
+lea di, fireball2
+jmp loop4
+
+draw4:
+mov ah,0ch
+mov al, [di]
+mov bh, 00h
+
+cmp al,0
+jz loop4
+int 10h
+
+
+loop4:
+inc di
+dec cx
+cmp cx,fireball2x
+jnz draw4
+
+add cx, fireball2W
+dec dx
+cmp dx,fireball2y
+jz terminate4
+jnz draw4
+
+terminate4:
+RET
+Drawfireball2 ENDP
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;   Delay proc nearedure      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 delay proc near
 push cx
-push dx
 push ax
 
-mov cx, 01h
-mov ah, 86h
-int 15h
+mov cx,0ffffh
+
+del1:
+
+mov ax,0
+
+del2:
+inc ax
+cmp ax,0fh
+jnz del2
+
+loop del1
 
 pop ax
-pop dx
 pop cx
 RET
-
 delay endp
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -503,7 +578,6 @@ delay endp
 ;;;;;; flush keyboard-buffer proc near ;;;;;;
 flushkeybuffer proc near 
 mov ah,0ch
-mov al,0
 int 21h
 RET
 flushkeybuffer endp
@@ -558,7 +632,6 @@ mov bl, nomove
 mov input, bl
 jmp nextinput1
 
-call delay
 nextinput1:
 cmp ax, arrowup
 jz up2
@@ -602,20 +675,19 @@ mov bl, nomove
 mov input2, bl
 jmp nextinput2
 
-call delay
 nextinput2:
 cmp ax,spacekey
 jz fire
-jmp endinput
+jmp nextinput3
 
 fire:
 call flushkeybuffer
 mov bl, isfiring
 cmp bl,1
 jnz startfiring
-jmp endinput
+jmp nextinput3
 
-call delay
+
 startfiring:
 call flushkeybuffer
 mov bl,1
@@ -626,6 +698,34 @@ mov fireball1x, bx
 mov bx, player1y
 add bx,10
 mov fireball1y, bx
+jmp nextinput3
+
+nextinput3:
+cmp ax,enterkey
+jz fire2
+jmp endinput
+
+fire2:
+call flushkeybuffer
+mov bl, isfiring2
+cmp bl,1
+jnz startfiring2
+jmp endinput
+
+
+startfiring2:
+call flushkeybuffer
+mov bl,1
+mov byte ptr [isfiring2], bl
+mov bx,player2x
+sub bx,10
+mov fireball2x, bx
+mov bx, player2y
+add bx,10
+mov fireball2y, bx
+jmp endinput
+
+
 
 endinput:
 call flushkeybuffer
@@ -767,11 +867,24 @@ cmp bx, 200
 jge stopfireball1
 add bx,fireball1velocity
 mov fireball1x,bx
-jmp endupdateobjects 
+jmp fireball2update 
 stopfireball1:
 mov bl,0
 mov isfiring,bl
+jmp fireball2update
+
+fireball2update:
+mov bx, fireball2x
+cmp bx,-60
+jle stopfireball2
+sub bx, fireball2velocity
+mov fireball2x, bx
 jmp endupdateobjects
+
+stopfireball2:
+mov bl,0
+mov isfiring2, bl
+
 
 endupdateobjects:
 pop bx
@@ -865,6 +978,38 @@ ret
 clearfireball1 ENDP
 
 
+clearfireball2 PROC 
+mov si,fireball2x
+mov di,fireball2y
+
+add si,fireball2W
+add di,fireball2H
+
+mov cx, fireball2x
+mov dx, fireball2y
+mov ah,0ch
+mov al,00h
+
+clearfireball2col:
+
+mov dx,fireball2y
+clearfireball2row:
+int 10h
+inc dx
+cmp dx,di
+jnz clearfireball2row
+
+inc cx
+cmp cx,si
+
+jnz clearfireball2col
+
+ret    
+clearfireball2 ENDP
+
+
+
+
 clearobjects proc near
 push cx
 push dx
@@ -873,6 +1018,7 @@ push ax
 call clearplayer1
 call clearplayer2
 call clearfireball1
+call clearfireball2
 
 pop ax
 pop dx
