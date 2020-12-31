@@ -3,6 +3,18 @@
 
 .data
 
+lives1 dw '3'
+lives2 dw '3'
+msglives db 'lives:$'
+PLayer1Health dw 100
+PLayer2Health dw 310
+msg1 db 'PLayer1$'
+msg2 db 'PLayer2$'
+
+;;;Dina;;;
+msg3   db  'Score:$'
+score1 dw   ?
+score2 dw   ?
 
 eW equ 50
 eH equ 50
@@ -277,12 +289,19 @@ fireball1x          dw      ?
 fireball1y          dw      ?
 fireball2x          dw      ?
 fireball2y          dw      ?
-xplayer1velocity    dw   15
-yplayer1velocity    dw   15
-xplayer2velocity    dw   15
-yplayer2velocity    dw   15
-fireball1velocity   dw   10
-fireball2velocity   dw   10
+coinx               dw      050d,0100d,120d,0150d,0200d,230d,260d,0290d
+coiny               dw      01d,01d,01d,01d,01d,01d,01d,01d
+coinsx1             dw      ?
+coinsy1             dw      ?
+coinsize            dw      8
+coinspeed           dw      4
+variable1           dw      0ADh
+xplayer1velocity    dw   5
+yplayer1velocity    dw   5
+xplayer2velocity    dw   5
+yplayer2velocity    dw   5
+fireball1velocity   dw   15
+fireball2velocity   dw   15
 
 
 input           db          ?
@@ -294,7 +313,7 @@ rightdirection  equ     0ADh
 leftdirection   equ     0AEh
 fireball        equ     0AFH
 isfiring        db         0
-isfiring2        db         0
+isfiring2       db         0
 arrowup     equ     4800h
 arrowdown   equ     5000h
 arrowright  equ     4D00h
@@ -312,18 +331,6 @@ Main proc Far
 mov ax,@data
 mov ds,ax
 
-
-
-mov cx,1
-mov dl,160
-mov dh,60
-mov ah,2
-int 10h
-
-mov al,'O'
-mov ah,9h
-mov bl,0Eh
-int 10h
 mov ah,0
 mov al,13h
 mov bh,0
@@ -334,19 +341,220 @@ maingameloop:
 call drawBack
 call DrawPlayer1
 call DrawPlayer2
-;call Drawcoins
+call Draweachcoin
+call FirstHealthBar
+call SeconedHealthBar
+call Text
 call Drawfireball
 call Drawfireball2
-call delay
 call getinput
+call delay
 call clearobjects
+call cleareachcoin
 call updateobjects
+call updatecoins
 jmp maingameloop
 
 
 endgame:
 Main ENDP
 
+
+;draws first player health
+FirstHealthBar PROC 
+mov cx,10         ;Column
+mov dx,150       ;Row       
+mov al,0fh       ;Pixel color
+mov ah,0ch       ;Draw Pixel Command
+first1:   int 10h 
+        inc cx
+        cmp cx,100
+        jnz first1
+mov cx,10         ;Column
+mov dx,154      ;Row 
+first2:   int 10h 
+        inc cx
+        cmp cx,100
+        jnz first2
+mov cx,10         ;Column
+mov dx,150       ;Row 
+first3:   int 10h 
+        inc dx
+        cmp dx,154
+        jnz first3
+mov cx,100         ;Column
+mov dx,150
+first4:   int 10h 
+        inc dx
+        cmp dx,155
+        jnz first4
+mov cx,11         ;Column
+mov dx,151       ;Row       
+mov al,04h       ;Pixel color
+first5: 
+        int 10h 
+        inc dx
+        int 10h
+        inc dx
+        int 10h
+        mov dx,151
+        inc cx
+        cmp cx,PLayer1Health
+        jnz first5
+        ret
+FirstHealthBar ENDP
+
+;draws seconed player health
+SeconedHealthBar PROC
+mov cx,220         ;Column
+mov dx,150       ;Row       
+mov al,0fh       ;Pixel color
+mov ah,0ch       ;Draw Pixel Command
+seconed1:   int 10h 
+        inc cx
+        cmp cx,310
+        jnz seconed1
+mov cx,220         ;Column
+mov dx,154      ;Row 
+seconed2:   int 10h 
+        inc cx
+        cmp cx,310
+        jnz seconed2
+mov cx,220         ;Column
+mov dx,150       ;Row 
+seconed3:   int 10h 
+        inc dx
+        cmp dx,154
+        jnz seconed3
+mov cx,310         ;Column
+mov dx,150
+seconed4:   int 10h 
+        inc dx
+        cmp dx,155
+        jnz seconed4
+mov cx,221         ;Column
+mov dx,151       ;Row       
+mov al,01h       ;Pixel color
+seconed5:   int 10h 
+        inc dx
+        int 10h
+        inc dx
+        int 10h
+        mov dx,151
+        inc cx
+        cmp cx,PLayer2Health
+        jnz seconed5
+        ret
+SeconedHealthBar ENDP
+
+;if first player is hit
+Damage1 PROC 
+mov ah,0ch       ;Draw Pixel Command
+sub PLayer1Health,5
+mov cx,PLayer1Health         ;Column
+cmp cx,10
+jz dead1
+blackrow1:mov dx,151       ;Row       
+mov al,00h       ;Pixel color
+int 10h
+inc dx
+int 10h
+inc dx 
+int 10h
+dec cx
+cmp cx,PLayer1Health
+jnz blackrow1
+ret
+dead1:
+mov bx,100
+mov PLayer1Health,bx
+dec lives1
+ret
+Damage1 ENDP
+
+;if seconed player is hit
+Damage2 PROC 
+mov ah,0ch       ;Draw Pixel Command
+sub PLayer2Health,5
+mov cx,PLayer2Health         ;Column
+cmp cx,220
+jz dead2
+blackrow2:mov dx,151               ;Row       
+mov al,00h               ;Pixel color
+int 10h
+inc dx
+int 10h
+inc dx 
+int 10h
+dec cx
+cmp cx,PLayer2Health
+jnz blackrow2
+ret
+dead2:
+mov bx,310
+mov PLayer2Health,bx
+dec lives2
+ret
+Damage2 ENDP
+
+;Appearing text
+Text PROC 
+    mov ax, @data
+    mov ds, ax
+    mov si,@data;moves to si the location in memory of the data segment
+    mov ah,13h;service to print string in graphic mode
+    mov al,0;sub-service 0 all the characters will be in the same color(bl) and cursor position is not updated after the string is written
+    mov bh,0;page number=always zero
+    mov bl,0fh;color of the text (white foreground and black background)
+    mov cx,7;length of string
+    mov dh,199;y coordinate
+    mov dl,65;x coordinate
+    mov es,si;moves to es the location in memory of the data segment
+    mov bp,offset msg1;mov bp the offset of the string
+    int 10h
+    mov dh,199;y coordinate
+    mov dl,92;x coordinate
+    mov es,si;moves to es the location in memory of the data segment
+    mov bp,offset msg2;mov bp the offset of the string
+    int 10h
+    mov cx,6
+    mov dh,201;y coordinate
+    mov dl,92;x coordinate
+    mov es,si;moves to es the location in memory of the data segment
+    mov bp,offset msglives;mov bp the offset of the string
+    int 10h
+    mov dh,201;y coordinate
+    mov dl,65;x coordinate
+    mov es,si;moves to es the location in memory of the data segment
+    mov bp,offset msglives;mov bp the offset of the string
+    int 10h
+    mov cx,1
+    mov dh,201;y coordinate
+    mov dl,98;x coordinate
+    mov es,si;moves to es the location in memory of the data segment
+    mov bp,offset lives2;mov bp the offset of the string
+    int 10h
+    mov dh,201;y coordinate
+    mov dl,71;x coordinate
+    mov es,si;moves to es the location in memory of the data segment
+    mov bp,offset lives1;mov bp the offset of the string
+    int 10h
+
+
+    ;;;;;;;;DINA;;;;;;;;;;;
+    mov cx,6
+    mov dh,203;y coordinate
+    mov dl,65;x coordinate
+    mov es,si;moves to es the location in memory of the data segment
+    mov bp,offset msg3;mov bp the offset of the string
+    int 10h
+    mov dh,203;y coordinate
+    mov dl,92;x coordinate
+    mov es,si;moves to es the location in memory of the data segment
+    mov bp,offset msg3;mov bp the offset of the string
+    int 10h
+    ret
+Text ENDP
 
 drawBack proc near
 mov ah,0ch
@@ -555,9 +763,19 @@ Drawfireball2 ENDP
 
 Drawcoins PROC near
 
+push di
+push cx
+push dx
+push ax
+push bx
+push si
+
+
 mov ah,0bh
-mov cx,coinW
-mov dx,coinH
+mov cx,coinsx1
+mov dx,coinsy1
+add cx,coinW
+add dx,coinH
 lea di,coin
 jmp loop5
 
@@ -574,16 +792,56 @@ int 10h
 loop5:
 inc di
 dec cx
+cmp cx,coinsx1
 jnz draw5
 
 add cx, coinW
 dec dx
+cmp dx,coinsy1
 jz terminate5
 jnz draw5
 
 terminate5:
+
+pop si
+pop bx
+pop ax
+pop dx
+pop cx
+pop di
+
 RET
 Drawcoins ENDP
+
+;;;;;;;;;DRAW EACH COIN;;;;;;;;;;;
+Draweachcoin proc near
+push ax
+push bx
+push cx
+push dx
+push di
+
+mov bx,coinsize
+mov si,bx
+mov di,0
+draw7:
+mov ax,coinx[di]
+mov coinsx1,ax
+mov bx,coiny[di]
+mov coinsy1,bx
+call Drawcoins
+add di,2
+dec si
+jnz draw7
+
+
+pop ax
+pop bx
+pop cx
+pop dx
+pop di
+RET
+Draweachcoin ENDP
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;   Delay proc nearedure      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -621,7 +879,6 @@ flushkeybuffer endp
 getinput proc near
 push ax 
 push bx
-
 mov ah,01h
 int 16h
 
@@ -897,37 +1154,201 @@ add bx,xplayer2velocity
 mov player2x, bx
 jmp fireball1update
 
-fireball1update:
-mov bx,fireball1x
 
+
+fireball1update:
+mov al, isfiring
+cmp al,1
+jne stopfireball1
+
+mov bx,fireball1x
+mov ax,player2x
+sub ax,10
+cmp bx,ax
+jge p2startdamage
+jmp updatefireball1velocity
+
+p2startdamage:
+mov ax,player2x
+add ax,10
+cmp fireball1x,ax
+jle checkdamage1
+jmp updatefireball1velocity
+
+checkdamage1:
+mov ax,player2y
+sub ax,10
+cmp fireball1y,ax
+jge checkdamage2
+jmp updatefireball1velocity
+
+checkdamage2:
+add ax,45
+cmp fireball1y,ax
+jg updatefireball1velocity
+call Damage2
+jmp stopfireball1
+
+updatefireball1velocity:
 cmp bx, 200
 jge stopfireball1
 add bx,fireball1velocity
 mov fireball1x,bx
 jmp fireball2update 
+
 stopfireball1:
 mov bl,0
 mov isfiring,bl
 jmp fireball2update
 
 fireball2update:
-mov bx, fireball2x
-cmp bx,-60
-jle stopfireball2
-sub bx, fireball2velocity
-mov fireball2x, bx
-jmp endupdateobjects
+mov al, isfiring2
+cmp al,1
+jne stopfireball2
+mov bx,fireball2x
+mov ax,player1x
+add ax,20
+cmp bx,ax
+jle p1startdamage
+jmp updatefireball2velocity
 
+p1startdamage:
+mov ax,player1x
+sub ax,10
+cmp fireball2x,ax
+jge checkdamage3
+jmp updatefireball2velocity
+
+checkdamage3:
+mov ax,player1y
+sub ax,15
+cmp fireball2y,ax
+jge checkdamage4
+jmp updatefireball2velocity
+
+checkdamage4:
+add ax,45
+cmp fireball2y,ax
+jg updatefireball2velocity
+call Damage1
+jmp stopfireball2
+
+
+;mov bx, fireball2x
+;cmp bx,-60
+;jle stopfireball2
+;sub bx, fireball2velocity
+;mov fireball2x, bx
+;jmp endupdateobjects
+
+updatefireball2velocity:
+mov bx, fireball2x
+cmp bx, -60
+jle stopfireball2
+sub bx,fireball2velocity
+mov fireball2x,bx 
+jmp endupdateobjects
 stopfireball2:
 mov bl,0
-mov isfiring2, bl
-
+mov isfiring2,bl
 
 endupdateobjects:
 pop bx
 RET
 updateobjects endp
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;; DINA  ;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;Get Random;;;;;;;;;;;;;;
+getrandom proc
+push dx
+mov ax,25173
+mul variable1
+add ax, 13849 
+mov variable1,ax
+pop dx
+ret
+getrandom endp
+
+getrandomfrom1to20 proc
+push dx
+push bx
+mov dx,0         
+mov bx,20        
+div bx
+inc dx              
+mov ax,dx
+pop bx
+pop dx
+ret   
+getrandomfrom1to20 endp
+
+getrandomfrom1to60 proc
+push dx
+push bx
+mov dx,0         
+mov bx,60        
+div bx
+inc dx              
+mov ax,dx
+pop bx
+pop dx
+ret   
+getrandomfrom1to60 endp
+
+;;;;;;;;;update coins/;;;;;;;;;;;;
+updatecoins proc near
+
+mov di,0
+mov bx,coinsize
+mov si,bx
+coinsfalling:
+mov bx,coiny[di]
+
+cmp bx,190
+jb coninuefalling
+jmp next
+coninuefalling:
+mov ax,coiny[di]
+add ax,coinspeed
+mov coiny[di],ax
+jmp last
+next:
+call getrandom
+call getrandomfrom1to20
+mov coiny[di],ax
+
+call getrandom
+call getrandomfrom1to60
+add  ax,coinx[di]
+cmp  ax,300
+jg   changex
+mov  coinx[di],ax
+jmp last
+changex:
+call getrandom
+call getrandomfrom1to20
+mov bx,ax
+sub bx,ax
+mov  coinx[di],ax
+
+
+
+last:
+add di,2
+dec si
+jnz coinsfalling
+
+
+
+RET
+updatecoins endp
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+
 ;;;;;;;; clear player 1 ;;;;;;;;;;
 
 clearplayer1 proc near
@@ -1043,7 +1464,84 @@ jnz clearfireball2col
 
 ret    
 clearfireball2 ENDP
+;;;;;;;;;;;;;;;;;;;;;;;
+;DINA;
+;;;;;;;;;clear coins;;;;;;;;;;;
+clearcoin proc near
+push di
+push cx
+push dx
+push ax
+push bx
+push si
 
+mov si,coinsx1
+mov di,coinsy1
+
+add si,coinW
+add di,coinH
+
+mov cx, coinsx1
+mov dx, coinsy1
+mov ah,0ch
+mov al,00h
+
+clearcoincol:
+
+mov dx,coinsy1
+clearcoinrow:
+int 10h
+inc dx
+cmp dx,di
+jnz clearcoinrow
+
+inc cx
+cmp cx,si
+jnz clearcoincol
+
+
+pop si
+pop bx
+pop ax
+pop dx
+pop cx
+pop di
+
+RET
+clearcoin ENDP
+          ;DINA
+;;;;;;;;;;;;clear each coin;;;;;;;;;;
+cleareachcoin proc near
+push ax
+push bx
+push cx
+push dx
+push di
+push si
+
+mov bx,coinsize
+mov si,bx
+mov di,0
+cleareach:
+mov ax,coinx[di]
+mov coinsx1,ax
+mov bx,coiny[di]
+mov coinsy1,bx
+call clearcoin
+add di,2d
+dec si
+jnz cleareach
+
+
+pop si
+pop di
+pop dx
+pop cx
+pop bx
+pop ax
+
+RET
+cleareachcoin ENDP
 
 
 
