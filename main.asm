@@ -294,6 +294,7 @@ coiny               dw      01d,01d,01d,01d,01d,01d,01d,01d
 coinsx1             dw      ?
 coinsy1             dw      ?
 coinsize            dw      8
+coinspeed           dw      4
 variable1           dw      0ADh
 xplayer1velocity    dw   5
 yplayer1velocity    dw   5
@@ -1321,7 +1322,7 @@ jb coninuefalling
 jmp next
 coninuefalling:
 mov ax,coiny[di]
-add ax,8
+add ax,coinspeed
 mov coiny[di],ax
 jmp last
 next:
