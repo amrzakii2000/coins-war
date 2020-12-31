@@ -3,6 +3,18 @@
 
 .data
 
+lives1 dw '3'
+lives2 dw '3'
+msglives db 'lives:$'
+PLayer1Health dw 100
+PLayer2Health dw 310
+msg1 db 'PLayer1$'
+msg2 db 'PLayer2$'
+
+;;;Dina;;;
+msg3   db  'Score:$'
+score1 dw   ?
+score2 dw   ?
 
 eW equ 50
 eH equ 50
@@ -202,27 +214,105 @@ p2 DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
  DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 16, 16, 16, 16, 0, 0, 0, 0, 0, 0, 0
  DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
  DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+
+fireball1W equ 32
+fireball1H equ 32
+fireball1 DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+ DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+ DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+ DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+ DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+ DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+ DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+ DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+ DB 0, 0, 0, 0, 0, 0, 0, 16, 4, 4, 4, 4, 4, 4, 112, 112, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 111, 4, 4
+ DB 6, 6, 42, 42, 42, 42, 6, 6, 4, 4, 4, 4, 111, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 6, 42, 43, 44, 44, 44, 14, 14, 14, 43
+ DB 42, 42, 42, 42, 6, 6, 4, 4, 4, 4, 4, 111, 0, 0, 0, 0, 0, 0, 0, 16, 4, 42, 43, 14, 14, 14, 44, 14, 68, 14, 14, 14, 14, 44, 43, 43, 43, 43, 42, 42
+ DB 6, 6, 12, 65, 14, 0, 0, 0, 0, 0, 0, 4, 6, 43, 44, 44, 14, 68, 14, 68, 68, 14, 14, 68, 68, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 44, 43, 6, 112, 0
+ DB 0, 0, 112, 4, 42, 14, 14, 14, 68, 68, 92, 92, 92, 68, 92, 92, 68, 68, 68, 68, 68, 92, 68, 68, 14, 43, 42, 42, 6, 6, 4, 0, 0, 0, 112, 4, 42, 14, 14, 68
+ DB 68, 92, 92, 68, 68, 92, 68, 68, 68, 14, 14, 14, 68, 68, 14, 43, 43, 6, 6, 4, 112, 0, 6, 0, 0, 0, 0, 4, 42, 14, 14, 68, 68, 68, 92, 68, 14, 68, 14, 14
+ DB 68, 14, 44, 14, 14, 43, 43, 42, 6, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 6, 43, 43, 14, 68, 68, 68, 14, 14, 68, 14, 14, 44, 14, 44, 44, 43, 42, 6, 6
+ DB 112, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 112, 6, 42, 43, 14, 68, 68, 14, 14, 14, 68, 14, 14, 44, 43, 42, 42, 6, 4, 112, 0, 0, 0, 0, 0, 0, 0, 0, 0
+ DB 0, 0, 0, 0, 4, 6, 43, 14, 14, 68, 14, 14, 14, 14, 43, 43, 42, 6, 6, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 112, 6, 42
+ DB 43, 43, 43, 43, 43, 43, 42, 6, 6, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 112, 6, 6, 6, 6, 6, 6, 6, 6, 112
+ DB 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 16, 112, 4, 112, 112, 0, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+ DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+ DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+ DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+ DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+ DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+ DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+ DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+
+fireball2W equ 32
+fireball2H equ 32
+fireball2 DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 
+ DB 0, 0, 0, 0, 0, 0, 57, 57, 0, 0, 0, 0, 56, 57, 57, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 57, 57 
+ DB 57, 57, 58, 58, 58, 57, 57, 57, 81, 81, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 57, 57, 57, 57, 57, 57, 57, 58, 58, 58, 57, 57, 58      
+ DB 81, 58, 58, 57, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 57, 57, 57, 57, 57, 57, 57, 57, 9, 9, 58, 58, 58, 81, 58, 58, 57, 0, 0, 0, 0 
+ DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 57, 57, 58, 58, 57, 57, 57, 9, 9, 9, 9, 57, 57, 58, 58, 58, 57, 57, 57, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 
+ DB 0, 58, 58, 57, 57, 58, 58, 57, 57, 9, 9, 9, 9, 9, 9, 9, 57, 58, 58, 58, 58, 57, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 58, 81, 58, 58, 58, 58, 58, 57       
+ DB 56, 9, 9, 9, 9, 9, 9, 9, 9, 58, 58, 58, 81, 81, 58, 58, 0, 0, 0, 0, 0, 0, 0, 0, 58, 81, 58, 58, 58, 58, 58, 57, 9, 9, 9, 9, 9, 9, 9, 9 
+ DB 9, 9, 9, 57, 81, 81, 58, 58, 0, 0, 0, 0, 0, 0, 58, 81, 58, 81, 81, 81, 58, 58, 57, 56, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 57, 58, 58, 58, 81         
+ DB 0, 0, 0, 58, 81, 58, 58, 81, 81, 58, 58, 58, 58, 58, 57, 57, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 56, 57, 58, 58, 81, 0, 0, 58, 58, 81, 81, 81, 58 
+ DB 58, 58, 58, 58, 58, 57, 57, 57, 9, 9, 9, 9, 9, 9, 9, 56, 57, 9, 9, 9, 57, 58, 58, 81, 0, 0, 58, 58, 81, 81, 81, 58, 58, 58, 58, 58, 58, 58, 57, 57 
+ DB 9, 9, 9, 9, 9, 9, 9, 57, 57, 57, 9, 9, 57, 58, 81, 58, 0, 0, 58, 58, 58, 58, 58, 81, 58, 58, 58, 58, 58, 58, 58, 56, 9, 9, 9, 9, 9, 57, 57, 57
+ DB 57, 57, 56, 9, 9, 58, 81, 58, 0, 0, 0, 0, 0, 0, 58, 81, 81, 81, 81, 58, 58, 58, 58, 57, 9, 9, 9, 9, 9, 57, 57, 57, 57, 57, 56, 9, 56, 58, 81, 81
+ DB 0, 0, 0, 0, 0, 0, 0, 58, 81, 58, 58, 58, 58, 58, 57, 57, 56, 9, 9, 9, 57, 57, 57, 57, 9, 9, 9, 9, 57, 81, 58, 58, 0, 0, 0, 0, 0, 0, 0, 58
+ DB 81, 58, 58, 58, 58, 58, 58, 56, 9, 9, 9, 57, 57, 9, 9, 9, 9, 9, 9, 9, 57, 81, 58, 58, 0, 0, 0, 0, 0, 0, 0, 0, 0, 35, 58, 57, 57, 58, 58, 57
+ DB 57, 56, 9, 9, 9, 9, 9, 9, 9, 9, 9, 57, 58, 81, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 56, 57, 57, 57, 58, 58, 58, 57, 9, 9, 9, 9, 9, 9
+ DB 9, 9, 57, 57, 58, 58, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 57, 57, 57, 57, 57, 58, 57, 57, 9, 9, 9, 9, 9, 9, 57, 58, 81, 58, 58, 0, 0
+ DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 57, 57, 57, 57, 57, 57, 57, 9, 9, 9, 9, 9, 58, 58, 58, 58, 81, 58, 58, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+ DB 0, 0, 0, 0, 0, 0, 57, 57, 57, 57, 57, 57, 57, 57, 57, 58, 58, 58, 81, 81, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+ DB 0, 57, 57, 57, 58, 58, 58, 58, 58, 81, 81, 58, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 81, 58, 81, 81
+ DB 81, 58, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+ DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+ DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+ DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+ DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+ DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+ DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+
+coinW equ 10
+coinH equ 10
+coin DB 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 18, 210, 211, 211, 210, 18, 0, 0, 0, 18, 139, 65, 66, 66, 65, 139, 18, 0, 0, 210, 65, 66, 43, 43, 66, 140, 187, 0 
+ DB 0, 211, 66, 43, 43, 43, 43, 42, 187, 0, 0, 211, 66, 43, 43, 43, 43, 42, 187, 0, 0, 210, 65, 66, 43, 43, 43, 140, 187, 0, 0, 18, 139, 140, 42, 42, 140, 139, 18, 0 
+ DB 0, 0, 18, 187, 187, 187, 187, 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+
 earthx              dw   160D
 earthy              dw   150D
 player1x            dw   -60D
 player1y            dw   300D
 player2y            dw   300D
 player2x            dw   200D
-xplayer1velocity    dw   15
-yplayer1velocity    dw   15
-xplayer2velocity    dw   15
-yplayer2velocity    dw   15
+fireball1x          dw      ?
+fireball1y          dw      ?
+fireball2x          dw      ?
+fireball2y          dw      ?
+coinx               dw      050d,0100d,120d,0150d,0200d,230d,260d,0290d
+coiny               dw      01d,01d,01d,01d,01d,01d,01d,01d
+coinsx1             dw      ?
+coinsy1             dw      ?
+coinsize            dw      8
+variable1           dw      0ADh
+xplayer1velocity    dw   5
+yplayer1velocity    dw   5
+xplayer2velocity    dw   5
+yplayer2velocity    dw   5
+fireball1velocity   dw   15
+fireball2velocity   dw   15
 
 
-input       db      ?
-input2      db      ?
+input           db          ?
+input2          db          ?
 nomove          equ     0AAh
 updirection     equ     0ABh
 downdirection   equ     0ACh
 rightdirection  equ     0ADh
 leftdirection   equ     0AEh
-
-
+fireball        equ     0AFH
+isfiring        db         0
+isfiring2       db         0
 arrowup     equ     4800h
 arrowdown   equ     5000h
 arrowright  equ     4D00h
@@ -231,7 +321,8 @@ Wkey        equ     1177h
 Akey        equ     1E61h
 Skey        equ     1f73h
 Dkey        equ     2064h
-
+spacekey    equ     3920h
+enterkey    equ     1C0Dh
 .code
 Main proc Far
 
@@ -261,16 +352,220 @@ maingameloop:
 call drawBack
 call DrawPlayer1
 call DrawPlayer2
-call delay
+call Draweachcoin
+call FirstHealthBar
+call SeconedHealthBar
+call Text
+call Drawfireball
+call Drawfireball2
 call getinput
+call delay
 call clearobjects
+call cleareachcoin
 call updateobjects
+call updatecoins
 jmp maingameloop
+
 
 endgame:
 Main ENDP
 
 
+;draws first player health
+FirstHealthBar PROC 
+mov cx,10         ;Column
+mov dx,150       ;Row       
+mov al,0fh       ;Pixel color
+mov ah,0ch       ;Draw Pixel Command
+first1:   int 10h 
+        inc cx
+        cmp cx,100
+        jnz first1
+mov cx,10         ;Column
+mov dx,154      ;Row 
+first2:   int 10h 
+        inc cx
+        cmp cx,100
+        jnz first2
+mov cx,10         ;Column
+mov dx,150       ;Row 
+first3:   int 10h 
+        inc dx
+        cmp dx,154
+        jnz first3
+mov cx,100         ;Column
+mov dx,150
+first4:   int 10h 
+        inc dx
+        cmp dx,155
+        jnz first4
+mov cx,11         ;Column
+mov dx,151       ;Row       
+mov al,04h       ;Pixel color
+first5: 
+        int 10h 
+        inc dx
+        int 10h
+        inc dx
+        int 10h
+        mov dx,151
+        inc cx
+        cmp cx,PLayer1Health
+        jnz first5
+        ret
+FirstHealthBar ENDP
+
+;draws seconed player health
+SeconedHealthBar PROC
+mov cx,220         ;Column
+mov dx,150       ;Row       
+mov al,0fh       ;Pixel color
+mov ah,0ch       ;Draw Pixel Command
+seconed1:   int 10h 
+        inc cx
+        cmp cx,310
+        jnz seconed1
+mov cx,220         ;Column
+mov dx,154      ;Row 
+seconed2:   int 10h 
+        inc cx
+        cmp cx,310
+        jnz seconed2
+mov cx,220         ;Column
+mov dx,150       ;Row 
+seconed3:   int 10h 
+        inc dx
+        cmp dx,154
+        jnz seconed3
+mov cx,310         ;Column
+mov dx,150
+seconed4:   int 10h 
+        inc dx
+        cmp dx,155
+        jnz seconed4
+mov cx,221         ;Column
+mov dx,151       ;Row       
+mov al,01h       ;Pixel color
+seconed5:   int 10h 
+        inc dx
+        int 10h
+        inc dx
+        int 10h
+        mov dx,151
+        inc cx
+        cmp cx,PLayer2Health
+        jnz seconed5
+        ret
+SeconedHealthBar ENDP
+
+;if first player is hit
+Damage1 PROC 
+mov ah,0ch       ;Draw Pixel Command
+sub PLayer1Health,5
+mov cx,PLayer1Health         ;Column
+cmp cx,10
+jz dead1
+blackrow1:mov dx,151       ;Row       
+mov al,00h       ;Pixel color
+int 10h
+inc dx
+int 10h
+inc dx 
+int 10h
+dec cx
+cmp cx,PLayer1Health
+jnz blackrow1
+ret
+dead1:
+mov bx,100
+mov PLayer1Health,bx
+dec lives1
+ret
+Damage1 ENDP
+
+;if seconed player is hit
+Damage2 PROC 
+mov ah,0ch       ;Draw Pixel Command
+sub PLayer2Health,5
+mov cx,PLayer2Health         ;Column
+cmp cx,220
+jz dead2
+blackrow2:mov dx,151               ;Row       
+mov al,00h               ;Pixel color
+int 10h
+inc dx
+int 10h
+inc dx 
+int 10h
+dec cx
+cmp cx,PLayer2Health
+jnz blackrow2
+ret
+dead2:
+mov bx,310
+mov PLayer2Health,bx
+dec lives2
+ret
+Damage2 ENDP
+
+;Appearing text
+Text PROC 
+    mov ax, @data
+    mov ds, ax
+    mov si,@data;moves to si the location in memory of the data segment
+    mov ah,13h;service to print string in graphic mode
+    mov al,0;sub-service 0 all the characters will be in the same color(bl) and cursor position is not updated after the string is written
+    mov bh,0;page number=always zero
+    mov bl,0fh;color of the text (white foreground and black background)
+    mov cx,7;length of string
+    mov dh,199;y coordinate
+    mov dl,65;x coordinate
+    mov es,si;moves to es the location in memory of the data segment
+    mov bp,offset msg1;mov bp the offset of the string
+    int 10h
+    mov dh,199;y coordinate
+    mov dl,92;x coordinate
+    mov es,si;moves to es the location in memory of the data segment
+    mov bp,offset msg2;mov bp the offset of the string
+    int 10h
+    mov cx,6
+    mov dh,201;y coordinate
+    mov dl,92;x coordinate
+    mov es,si;moves to es the location in memory of the data segment
+    mov bp,offset msglives;mov bp the offset of the string
+    int 10h
+    mov dh,201;y coordinate
+    mov dl,65;x coordinate
+    mov es,si;moves to es the location in memory of the data segment
+    mov bp,offset msglives;mov bp the offset of the string
+    int 10h
+    mov cx,1
+    mov dh,201;y coordinate
+    mov dl,98;x coordinate
+    mov es,si;moves to es the location in memory of the data segment
+    mov bp,offset lives2;mov bp the offset of the string
+    int 10h
+    mov dh,201;y coordinate
+    mov dl,71;x coordinate
+    mov es,si;moves to es the location in memory of the data segment
+    mov bp,offset lives1;mov bp the offset of the string
+    int 10h
+
+
+    ;;;;;;;;DINA;;;;;;;;;;;
+    mov cx,6
+    mov dh,203;y coordinate
+    mov dl,65;x coordinate
+    mov es,si;moves to es the location in memory of the data segment
+    mov bp,offset msg3;mov bp the offset of the string
+    int 10h
+    mov dh,203;y coordinate
+    mov dl,92;x coordinate
+    mov es,si;moves to es the location in memory of the data segment
+    mov bp,offset msg3;mov bp the offset of the string
+    int 10h
+    ret
+Text ENDP
 
 drawBack proc near
 mov ah,0ch
@@ -325,6 +620,7 @@ drawBack ENDP
 
 
 DrawPlayer1 proc near
+
 mov ah,0bh
 mov cx,player1x
 mov dx, player1y
@@ -396,23 +692,190 @@ terminate2:
 RET
 DrawPlayer2 ENDP
 
+Drawfireball proc near
+mov al,isfiring
+cmp al,1
+jne terminate3
+
+mov ah,0bh
+mov cx,fireball1x
+mov dx, fireball1y
+
+add cx, fireball1W
+add dx, fireball1H
+lea di, fireball1
+jmp loop3
+
+draw3:
+mov ah,0ch
+mov al, [di]
+mov bh, 00h
+
+cmp al,0
+jz loop3
+int 10h
+
+
+loop3:
+inc di
+dec cx
+cmp cx,fireball1x
+jnz draw3
+
+add cx, fireball1W
+dec dx
+cmp dx,fireball1y
+jz terminate3
+jnz draw3
+
+terminate3:
+RET
+Drawfireball ENDP
+
+Drawfireball2 proc near
+mov al,isfiring2
+cmp al,1
+jne terminate4
+
+mov ah,0bh
+mov cx,fireball2x
+mov dx, fireball2y
+
+add cx, fireball2W
+add dx, fireball2H
+lea di, fireball2
+jmp loop4
+
+draw4:
+mov ah,0ch
+mov al, [di]
+mov bh, 00h
+
+cmp al,0
+jz loop4
+int 10h
+
+
+loop4:
+inc di
+dec cx
+cmp cx,fireball2x
+jnz draw4
+
+add cx, fireball2W
+dec dx
+cmp dx,fireball2y
+jz terminate4
+jnz draw4
+
+terminate4:
+RET
+Drawfireball2 ENDP
+
+Drawcoins PROC near
+
+push di
+push cx
+push dx
+push ax
+push bx
+push si
+
+
+mov ah,0bh
+mov cx,coinsx1
+mov dx,coinsy1
+add cx,coinW
+add dx,coinH
+lea di,coin
+jmp loop5
+
+draw5:
+mov ah,0ch
+mov al, [di]
+mov bh, 00h
+
+cmp al,0
+jz loop5
+int 10h
+
+
+loop5:
+inc di
+dec cx
+cmp cx,coinsx1
+jnz draw5
+
+add cx, coinW
+dec dx
+cmp dx,coinsy1
+jz terminate5
+jnz draw5
+
+terminate5:
+
+pop si
+pop bx
+pop ax
+pop dx
+pop cx
+pop di
+
+RET
+Drawcoins ENDP
+
+;;;;;;;;;DRAW EACH COIN;;;;;;;;;;;
+Draweachcoin proc near
+push ax
+push bx
+push cx
+push dx
+push di
+
+mov bx,coinsize
+mov si,bx
+mov di,0
+draw7:
+mov ax,coinx[di]
+mov coinsx1,ax
+mov bx,coiny[di]
+mov coinsy1,bx
+call Drawcoins
+add di,2
+dec si
+jnz draw7
+
+
+pop ax
+pop bx
+pop cx
+pop dx
+pop di
+RET
+Draweachcoin ENDP
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;   Delay proc nearedure      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 delay proc near
 push cx
-push dx
 push ax
 
-mov cx, 01h
-mov ah, 86h
-int 15h
+mov cx,0ffffh
+
+del1:
+
+mov ax,0
+
+del2:
+inc ax
+cmp ax,0fh
+jnz del2
+
+loop del1
 
 pop ax
-pop dx
 pop cx
 RET
-
 delay endp
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -420,7 +883,6 @@ delay endp
 ;;;;;; flush keyboard-buffer proc near ;;;;;;
 flushkeybuffer proc near 
 mov ah,0ch
-mov al,0
 int 21h
 RET
 flushkeybuffer endp
@@ -444,28 +906,30 @@ cmp ax, Akey
 jz left
 jmp freeze
 
+
+
 up:
 call flushkeybuffer
-mov al, updirection
-mov input, al
+mov bl, updirection
+mov input, bl
 jmp nextinput1
 
 down:
 call flushkeybuffer
-mov al, downdirection
-mov input, al
+mov bl, downdirection
+mov input, bl
 jmp nextinput1
 
 right:
 call flushkeybuffer
-mov al, rightdirection
-mov input, al
+mov bl, rightdirection
+mov input, bl
 jmp nextinput1
 
 left:
 call flushkeybuffer
-mov al, leftdirection
-mov input, al
+mov bl, leftdirection
+mov input, bl
 jmp nextinput1
 
 freeze:
@@ -489,32 +953,84 @@ jmp freeze2
 
 up2:
 call flushkeybuffer
-mov al, updirection
-mov input2, al
-jmp endinput
+mov bl, updirection
+mov input2, bl
+jmp nextinput2
 
 down2:
 call flushkeybuffer
-mov al, downdirection
-mov input2, al
-jmp endinput
+mov bl, downdirection
+mov input2, bl
+jmp nextinput2
 
 right2:
 call flushkeybuffer
-mov al, rightdirection
-mov input2, al
-jmp endinput
+mov bl, rightdirection
+mov input2, bl
+jmp nextinput2
 
 left2:
 call flushkeybuffer
-mov al, leftdirection
-mov input2, al
-jmp endinput
+mov bl, leftdirection
+mov input2, bl
+jmp nextinput2
 
 freeze2:
 mov bl, nomove
 mov input2, bl
+jmp nextinput2
+
+nextinput2:
+cmp ax,spacekey
+jz fire
+jmp nextinput3
+
+fire:
+call flushkeybuffer
+mov bl, isfiring
+cmp bl,1
+jnz startfiring
+jmp nextinput3
+
+
+startfiring:
+call flushkeybuffer
+mov bl,1
+mov byte ptr [isfiring], bl
+mov bx,player1x
+add bx,10
+mov fireball1x, bx
+mov bx, player1y
+add bx,10
+mov fireball1y, bx
+jmp nextinput3
+
+nextinput3:
+cmp ax,enterkey
+jz fire2
 jmp endinput
+
+fire2:
+call flushkeybuffer
+mov bl, isfiring2
+cmp bl,1
+jnz startfiring2
+jmp endinput
+
+
+startfiring2:
+call flushkeybuffer
+mov bl,1
+mov byte ptr [isfiring2], bl
+mov bx,player2x
+sub bx,10
+mov fireball2x, bx
+mov bx, player2y
+add bx,10
+mov fireball2y, bx
+jmp endinput
+
+
 
 endinput:
 call flushkeybuffer
@@ -607,54 +1123,243 @@ jz checkleft2
 
 
 cmp bl, nomove
-jz endupdateobjects
+jz fireball1update
 
 checkup2:
 mov bx,player2y
 cmp bx,220
 jg moveup2
-jmp endupdateobjects
+jmp fireball1update
 moveup2:
 sub bx,yplayer2velocity
 mov player2y, bx
-jmp endupdateobjects
+jmp fireball1update
 
 checkdown2:
 mov bx,player2y
 cmp bx,340
 jl movedown2
-jmp endupdateobjects
+jmp fireball1update
 movedown2:
 add bx,yplayer2velocity
 mov player2y, bx
-jmp endupdateobjects
+jmp fireball1update
 
 checkleft2:
 mov bx,player2x
 cmp bx,-25
 jg moveleft2
-jmp endupdateobjects
+jmp fireball1update
 moveleft2:
 sub bx,xplayer2velocity
 mov player2x, bx
-jmp endupdateobjects
+jmp fireball1update
 
 checkright2:
 mov bx,player2x
 cmp bx,190
 jle moveright2
-jmp endupdateobjects
+jmp fireball1update
 moveright2:
 add bx,xplayer2velocity
 mov player2x, bx
-jmp endupdateobjects
+jmp fireball1update
 
+
+
+fireball1update:
+mov al, isfiring
+cmp al,1
+jne stopfireball1
+
+mov bx,fireball1x
+mov ax,player2x
+sub ax,10
+cmp bx,ax
+jge p2startdamage
+jmp updatefireball1velocity
+
+p2startdamage:
+mov ax,player2x
+add ax,10
+cmp fireball1x,ax
+jle checkdamage1
+jmp updatefireball1velocity
+
+checkdamage1:
+mov ax,player2y
+sub ax,10
+cmp fireball1y,ax
+jge checkdamage2
+jmp updatefireball1velocity
+
+checkdamage2:
+add ax,45
+cmp fireball1y,ax
+jg updatefireball1velocity
+call Damage2
+jmp stopfireball1
+
+updatefireball1velocity:
+cmp bx, 200
+jge stopfireball1
+add bx,fireball1velocity
+mov fireball1x,bx
+jmp fireball2update 
+
+stopfireball1:
+mov bl,0
+mov isfiring,bl
+jmp fireball2update
+
+fireball2update:
+mov al, isfiring2
+cmp al,1
+jne stopfireball2
+mov bx,fireball2x
+mov ax,player1x
+add ax,20
+cmp bx,ax
+jle p1startdamage
+jmp updatefireball2velocity
+
+p1startdamage:
+mov ax,player1x
+sub ax,10
+cmp fireball2x,ax
+jge checkdamage3
+jmp updatefireball2velocity
+
+checkdamage3:
+mov ax,player1y
+sub ax,15
+cmp fireball2y,ax
+jge checkdamage4
+jmp updatefireball2velocity
+
+checkdamage4:
+add ax,45
+cmp fireball2y,ax
+jg updatefireball2velocity
+call Damage1
+jmp stopfireball2
+
+
+;mov bx, fireball2x
+;cmp bx,-60
+;jle stopfireball2
+;sub bx, fireball2velocity
+;mov fireball2x, bx
+;jmp endupdateobjects
+
+updatefireball2velocity:
+mov bx, fireball2x
+cmp bx, -60
+jle stopfireball2
+sub bx,fireball2velocity
+mov fireball2x,bx 
+jmp endupdateobjects
+stopfireball2:
+mov bl,0
+mov isfiring2,bl
 
 endupdateobjects:
 pop bx
 RET
 updateobjects endp
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;; DINA  ;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;Get Random;;;;;;;;;;;;;;
+getrandom proc
+push dx
+mov ax,25173
+mul variable1
+add ax, 13849 
+mov variable1,ax
+pop dx
+ret
+getrandom endp
+
+getrandomfrom1to20 proc
+push dx
+push bx
+mov dx,0         
+mov bx,20        
+div bx
+inc dx              
+mov ax,dx
+pop bx
+pop dx
+ret   
+getrandomfrom1to20 endp
+
+getrandomfrom1to60 proc
+push dx
+push bx
+mov dx,0         
+mov bx,60        
+div bx
+inc dx              
+mov ax,dx
+pop bx
+pop dx
+ret   
+getrandomfrom1to60 endp
+
+;;;;;;;;;update coins/;;;;;;;;;;;;
+updatecoins proc near
+
+mov di,0
+mov bx,coinsize
+mov si,bx
+coinsfalling:
+mov bx,coiny[di]
+
+cmp bx,190
+jb coninuefalling
+jmp next
+coninuefalling:
+mov ax,coiny[di]
+add ax,8
+mov coiny[di],ax
+jmp last
+next:
+call getrandom
+call getrandomfrom1to20
+mov coiny[di],ax
+
+call getrandom
+call getrandomfrom1to60
+add  ax,coinx[di]
+cmp  ax,300
+jg   changex
+mov  coinx[di],ax
+jmp last
+changex:
+call getrandom
+call getrandomfrom1to20
+mov bx,ax
+sub bx,ax
+mov  coinx[di],ax
+
+
+
+last:
+add di,2
+dec si
+jnz coinsfalling
+
+
+
+RET
+updatecoins endp
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+
 ;;;;;;;; clear player 1 ;;;;;;;;;;
 
 clearplayer1 proc near
@@ -710,6 +1415,147 @@ jnz clearp2row
 RET
 clearplayer2 endp
 
+;;;;;;;;;;;;clear fireball1;;;;;;;;;;;;;
+;description
+clearfireball1 PROC 
+mov si,fireball1x
+mov di,fireball1y
+
+add si,fireball1W
+add di,fireball1H
+
+mov cx, fireball1x
+mov dx, fireball1y
+mov ah,0ch
+mov al,00h
+
+clearfireball1col:
+
+mov dx,fireball1y
+clearfireball1row:
+int 10h
+inc dx
+cmp dx,di
+jnz clearfireball1row
+
+inc cx
+cmp cx,si
+
+jnz clearfireball1col
+
+ret    
+clearfireball1 ENDP
+
+
+clearfireball2 PROC 
+mov si,fireball2x
+mov di,fireball2y
+
+add si,fireball2W
+add di,fireball2H
+
+mov cx, fireball2x
+mov dx, fireball2y
+mov ah,0ch
+mov al,00h
+
+clearfireball2col:
+
+mov dx,fireball2y
+clearfireball2row:
+int 10h
+inc dx
+cmp dx,di
+jnz clearfireball2row
+
+inc cx
+cmp cx,si
+
+jnz clearfireball2col
+
+ret    
+clearfireball2 ENDP
+;;;;;;;;;;;;;;;;;;;;;;;
+;DINA;
+;;;;;;;;;clear coins;;;;;;;;;;;
+clearcoin proc near
+push di
+push cx
+push dx
+push ax
+push bx
+push si
+
+mov si,coinsx1
+mov di,coinsy1
+
+add si,coinW
+add di,coinH
+
+mov cx, coinsx1
+mov dx, coinsy1
+mov ah,0ch
+mov al,00h
+
+clearcoincol:
+
+mov dx,coinsy1
+clearcoinrow:
+int 10h
+inc dx
+cmp dx,di
+jnz clearcoinrow
+
+inc cx
+cmp cx,si
+jnz clearcoincol
+
+
+pop si
+pop bx
+pop ax
+pop dx
+pop cx
+pop di
+
+RET
+clearcoin ENDP
+          ;DINA
+;;;;;;;;;;;;clear each coin;;;;;;;;;;
+cleareachcoin proc near
+push ax
+push bx
+push cx
+push dx
+push di
+push si
+
+mov bx,coinsize
+mov si,bx
+mov di,0
+cleareach:
+mov ax,coinx[di]
+mov coinsx1,ax
+mov bx,coiny[di]
+mov coinsy1,bx
+call clearcoin
+add di,2d
+dec si
+jnz cleareach
+
+
+pop si
+pop di
+pop dx
+pop cx
+pop bx
+pop ax
+
+RET
+cleareachcoin ENDP
+
+
+
 clearobjects proc near
 push cx
 push dx
@@ -717,6 +1563,8 @@ push ax
 
 call clearplayer1
 call clearplayer2
+call clearfireball1
+call clearfireball2
 
 pop ax
 pop dx
