@@ -5,7 +5,7 @@
 
 lives1 dw '3'
 lives2 dw '3'
-msglives db 'lives:$'
+msglives db 3,'$'
 PLayer1Health dw 100
 PLayer2Health dw 310
 msg1 db 'PLayer1$'
@@ -13,8 +13,9 @@ msg2 db 'PLayer2$'
 
 ;;;Dina;;;
 msg3   db  'Score:$'
-score1 dw   ?
-score2 dw   ?
+round  db  'Round 1','$'
+score1 dw   0
+score2 dw   0
 
 eW equ 50
 eH equ 50
@@ -284,21 +285,22 @@ earthy              dw   150D
 player1x            dw   -60D
 player1y            dw   300D
 player2y            dw   300D
-player2x            dw   200D
+player2x            dw   215D
 fireball1x          dw      ?
 fireball1y          dw      ?
 fireball2x          dw      ?
 fireball2y          dw      ?
 coinx               dw      050d,0100d,120d,0150d,0200d,230d,260d,0290d
-coiny               dw      01d,01d,01d,01d,01d,01d,01d,01d
+coiny               dw      1d,1d,1d,1d,1d,1d,1d,1d
 coinsx1             dw      ?
 coinsy1             dw      ?
 coinsize            dw      8
+coinvelocity        dw      3
 variable1           dw      0ADh
-xplayer1velocity    dw   5
-yplayer1velocity    dw   5
-xplayer2velocity    dw   5
-yplayer2velocity    dw   5
+xplayer1velocity    dw   7
+yplayer1velocity    dw   7
+xplayer2velocity    dw   7
+yplayer2velocity    dw   7
 fireball1velocity   dw   15
 fireball2velocity   dw   15
 
@@ -364,6 +366,7 @@ call clearobjects
 call cleareachcoin
 call updateobjects
 call updatecoins
+
 jmp maingameloop
 
 
@@ -508,8 +511,30 @@ dec lives2
 ret
 Damage2 ENDP
 
+
+
+P4      PROC                
+            MOV AX,CX           ;CX = VALUE THAT I WANT TO CONVERT
+            MOV BX,10           
+    ASC2:
+            DIV BX              ;DIV AX/10
+            ADD DX,48           ;ADD 48 TO REMAINDER TO GET ASCII CHARACTER OF NUMBER 
+            PUSH AX             ;SAVE AX
+            MOV AH,2            ;PRINT REMAINDER STORED IN DX
+            INT 21H             ;INTERRUP
+            POP AX              ;POP AX BACK
+            CMP AX,0            
+            JZ EXTT             ;IF AX=0, END OF THE PROCEDURE
+            JMP ASC2            ;ELSE REPEAT
+    EXTT:
+            RET
+    P4      ENDP
+
+
+
 ;Appearing text
 Text PROC 
+
     mov ax, @data
     mov ds, ax
     mov si,@data;moves to si the location in memory of the data segment
@@ -528,7 +553,8 @@ Text PROC
     mov es,si;moves to es the location in memory of the data segment
     mov bp,offset msg2;mov bp the offset of the string
     int 10h
-    mov cx,6
+    mov bl, 0ch
+    mov cx,1
     mov dh,201;y coordinate
     mov dl,92;x coordinate
     mov es,si;moves to es the location in memory of the data segment
@@ -539,16 +565,23 @@ Text PROC
     mov es,si;moves to es the location in memory of the data segment
     mov bp,offset msglives;mov bp the offset of the string
     int 10h
+    mov bl,0fh
     mov cx,1
     mov dh,201;y coordinate
-    mov dl,98;x coordinate
+    mov dl,94;x coordinate
     mov es,si;moves to es the location in memory of the data segment
     mov bp,offset lives2;mov bp the offset of the string
     int 10h
     mov dh,201;y coordinate
-    mov dl,71;x coordinate
+    mov dl,67;x coordinate
     mov es,si;moves to es the location in memory of the data segment
     mov bp,offset lives1;mov bp the offset of the string
+    int 10h
+    mov cx,7
+    mov dh,2;y coordinate
+    mov dl,16;x coordinate
+    mov es,si;moves to es the location in memory of the data segment
+    mov bp,offset round;mov bp the offset of the string
     int 10h
 
 
@@ -559,13 +592,53 @@ Text PROC
     mov es,si;moves to es the location in memory of the data segment
     mov bp,offset msg3;mov bp the offset of the string
     int 10h
+    
     mov dh,203;y coordinate
     mov dl,92;x coordinate
     mov es,si;moves to es the location in memory of the data segment
     mov bp,offset msg3;mov bp the offset of the string
     int 10h
+
+    mov dh,203;y coordinate
+    mov dl,71;x coordinate
+    mov ah,02h
+    int 10h
+    mov ax,score1
+    call printax
+
+    mov dh,203;y coordinate
+    mov dl,98;x coordinate
+    mov ah,02h
+    int 10h
+    mov ax,score2
+    call printax
+
     ret
 Text ENDP
+
+printax proc
+push ax
+mov cx, 0
+mov bx, 10
+@@loophere:
+mov dx, 0
+div bx                    
+push ax
+add dl, '0'               
+pop ax                    
+push dx                   
+inc cx                    
+cmp ax, 0                 
+jnz @@loophere
+mov ah, 2                  
+@@loophere2:
+pop dx                         
+int 21h                         
+loop @@loophere2
+pop ax
+ret
+printax endp
+
 
 drawBack proc near
 mov ah,0ch
@@ -1096,7 +1169,7 @@ jmp nextupdate1
 
 checkright1:
 mov bx,player1x
-cmp bx,160
+cmp bx,180
 jle moveright1
 jmp nextupdate1
 moveright1:
@@ -1157,7 +1230,7 @@ jmp fireball1update
 
 checkright2:
 mov bx,player2x
-cmp bx,190
+cmp bx,210
 jle moveright2
 jmp fireball1update
 moveright2:
@@ -1313,53 +1386,143 @@ updatecoins proc near
 mov di,0
 mov bx,coinsize
 mov si,bx
-coinsfalling:
-mov bx,coiny[di]
 
+coinsfalling:
+
+mov bx,coiny[di]
+checkifsameyp1:
+mov dx,player1y
+sub dx,190
+cmp bx,dx
+je  checkifsamexp11
+
+add dx,1
+cmp bx,dx
+je  checkifsamexp11
+
+add dx,1
+cmp bx,dx
+je  checkifsamexp11
+
+add dx,1
+cmp bx,dx
+je  checkifsamexp11
+
+
+jmp checkforsecondplayer
+
+checkifsamexp11:
+mov dx,player1x
+add dx,60
+cmp coinx[di],dx
+jge checkifsamexp12
+jmp checkforsecondplayer
+
+checkifsamexp12:
+add dx,30
+cmp coinx[di],dx
+jle incp1score
+jmp checkforsecondplayer
+
+incp1score:
+inc score1
+jmp newcoinsinitialization
+
+
+
+
+
+checkforsecondplayer:
+
+mov bx,coiny[di]
+checkifsameyp2:
+mov dx,player2y
+sub dx,190
+cmp bx,dx
+je  checkifsamexp21
+
+add dx,1
+cmp bx,dx
+je  checkifsamexp21
+
+add dx,1
+cmp bx,dx
+je  checkifsamexp21
+
+add dx,1
+cmp bx,dx
+je  checkifsamexp21
+
+
+jmp checkcoinsend
+
+checkifsamexp21:
+mov dx,player2x
+add dx,60
+cmp coinx[di],dx
+jge checkifsamexp22
+jmp checkcoinsend
+
+checkifsamexp22:
+add dx,30
+cmp coinx[di],dx
+jle incp2score
+jmp checkcoinsend
+
+incp2score:
+inc score2
+jmp newcoinsinitialization
+
+
+returntocoinsfalling:
+jmp coinsfalling
+
+
+checkcoinsend:
 cmp bx,190
 jb coninuefalling
-jmp next
+jmp newcoinsinitialization
+
 coninuefalling:
 mov ax,coiny[di]
-add ax,8
+add ax,3
 mov coiny[di],ax
 jmp last
-next:
-call getrandom
-call getrandomfrom1to20
-mov coiny[di],ax
 
-call getrandom
-call getrandomfrom1to60
-add  ax,coinx[di]
-cmp  ax,300
-jg   changex
+newcoinsinitialization:
+call getrandom                ;get random value           ;
+call getrandomfrom1to20       ;get random value from 1 to 20
+mov coiny[di],ax              ;put y of coin with random value
+
+call getrandom                ;get random value
+call getrandomfrom1to60       ;get random value from 1 to 60
+add  ax,coinx[di]             
+cmp  ax,290                   ;compare the new value of x with 300(end of screen width)
+jg   changex                  
 mov  coinx[di],ax
 jmp last
-changex:
+
+changex:                      ; if the new value of x greater than 300 will subtract number from 1 to 20
 call getrandom
-call getrandomfrom1to20
+call getrandomfrom1to60
 mov bx,ax
 sub bx,ax
 mov  coinx[di],ax
 
-
-
 last:
 add di,2
 dec si
-jnz coinsfalling
-
-
+jnz returntocoinsfalling
 
 RET
-updatecoins endp
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+updatecoins ENDP
 
 
-
-
+;;;;;;;;;;;;;;;DINA;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;player catch coin;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;mov coinsx1,ax
+;mov dx,coiny[di]
+;mov coinsy1,dx
 ;;;;;;;; clear player 1 ;;;;;;;;;;
 
 clearplayer1 proc near
