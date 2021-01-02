@@ -30,14 +30,9 @@ MAIN PROC
 	;   int 21h
 
 	;   mov dl,'0'
-	          mov dx,timer
-	;   mov time_str,0
-	          add dx,38D6H
-	          mov time_str,dx
-	          mov dx,offset time_str
-	          mov ah,9
-	          int 21h
-	          mov ah,2
+	         mov ax,timer
+			 call printax
+			  mov ah,2
 	          mov dl,' '
 	          int 21h
 	    
@@ -48,4 +43,29 @@ MAIN PROC
 	EXIT:     mov ax, 4c00h
 	          int 21h
   MAIN ENDP
+
+  
+printax proc
+push ax
+mov cx, 0
+mov bx, 10
+@@loophere:
+mov dx, 0
+div bx                    
+push ax
+add dl, '0'               
+pop ax                    
+push dx                   
+inc cx                    
+cmp ax, 0                 
+jnz @@loophere
+mov ah, 2                  
+@@loophere2:
+pop dx                         
+int 21h                         
+loop @@loophere2
+pop ax
+ret
+printax endp
+
 END MAIN
