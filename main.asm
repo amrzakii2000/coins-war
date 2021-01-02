@@ -295,7 +295,7 @@ coiny               dw      1d,1d,1d,1d,1d,1d,1d,1d
 coinsx1             dw      ?
 coinsy1             dw      ?
 coinsize            dw      8
-coinspeed        dw      3
+coinspeed           dw      3
 variable1           dw      0ADh
 xplayer1velocity    dw   7
 yplayer1velocity    dw   7
@@ -315,6 +315,8 @@ leftdirection   equ     0AEh
 fireball        equ     0AFH
 isfiring        db         0
 isfiring2       db         0
+p1hit           db         0
+p2hit           db         0 
 arrowup     equ     4800h
 arrowdown   equ     5000h
 arrowright  equ     4D00h
@@ -366,7 +368,6 @@ call clearobjects
 call cleareachcoin
 call updateobjects
 call updatecoins
-
 jmp maingameloop
 
 
@@ -511,30 +512,8 @@ dec lives2
 ret
 Damage2 ENDP
 
-
-
-P4      PROC                
-            MOV AX,CX           ;CX = VALUE THAT I WANT TO CONVERT
-            MOV BX,10           
-    ASC2:
-            DIV BX              ;DIV AX/10
-            ADD DX,48           ;ADD 48 TO REMAINDER TO GET ASCII CHARACTER OF NUMBER 
-            PUSH AX             ;SAVE AX
-            MOV AH,2            ;PRINT REMAINDER STORED IN DX
-            INT 21H             ;INTERRUP
-            POP AX              ;POP AX BACK
-            CMP AX,0            
-            JZ EXTT             ;IF AX=0, END OF THE PROCEDURE
-            JMP ASC2            ;ELSE REPEAT
-    EXTT:
-            RET
-    P4      ENDP
-
-
-
 ;Appearing text
 Text PROC 
-
     mov ax, @data
     mov ds, ax
     mov si,@data;moves to si the location in memory of the data segment
@@ -592,7 +571,6 @@ Text PROC
     mov es,si;moves to es the location in memory of the data segment
     mov bp,offset msg3;mov bp the offset of the string
     int 10h
-    
     mov dh,203;y coordinate
     mov dl,92;x coordinate
     mov es,si;moves to es the location in memory of the data segment
@@ -604,19 +582,19 @@ Text PROC
     mov ah,02h
     int 10h
     mov ax,score1
-    call printax
+    call printnumbers
 
     mov dh,203;y coordinate
     mov dl,98;x coordinate
     mov ah,02h
     int 10h
     mov ax,score2
-    call printax
+    call printnumbers
 
     ret
 Text ENDP
 
-printax proc
+printnumbers proc
 push ax
 mov cx, 0
 mov bx, 10
@@ -637,7 +615,7 @@ int 21h
 loop @@loophere2
 pop ax
 ret
-printax endp
+printnumbers endp
 
 
 drawBack proc near
@@ -710,6 +688,15 @@ mov bh, 00h
 
 cmp al,0
 jz loop1
+mov bl,p1hit
+cmp bl,1
+je drawred1
+jmp keep1
+
+drawred1:
+mov al,0ch
+
+keep1:
 int 10h
 
 
@@ -726,6 +713,8 @@ jz terminate1
 jnz draw1
 
 terminate1:
+mov bl,0
+mov p1hit,bl
 RET
 DrawPlayer1 ENDP
 
@@ -743,9 +732,18 @@ draw2:
 mov ah,0ch
 mov al, [di]
 mov bh, 00h
-
 cmp al,0
 jz loop2
+
+mov bl,p2hit
+cmp bl,1
+je drawred2
+jmp keep
+
+drawred2:
+mov al,0ch
+
+keep:
 int 10h
 
 
@@ -762,6 +760,8 @@ jz terminate2
 jnz draw2
 
 terminate2:
+mov bl,0
+mov p2hit,bl
 RET
 DrawPlayer2 ENDP
 
@@ -945,6 +945,7 @@ cmp ax,0fh
 jnz del2
 
 loop del1
+
 
 pop ax
 pop cx
@@ -1271,6 +1272,8 @@ add ax,45
 cmp fireball1y,ax
 jg updatefireball1velocity
 call Damage2
+mov bl,1
+mov p2hit,bl
 jmp stopfireball1
 
 updatefireball1velocity:
@@ -1315,15 +1318,9 @@ add ax,45
 cmp fireball2y,ax
 jg updatefireball2velocity
 call Damage1
+mov bl,1
+mov p1hit,bl
 jmp stopfireball2
-
-
-;mov bx, fireball2x
-;cmp bx,-60
-;jle stopfireball2
-;sub bx, fireball2velocity
-;mov fireball2x, bx
-;jmp endupdateobjects
 
 updatefireball2velocity:
 mov bx, fireball2x
@@ -1340,6 +1337,7 @@ endupdateobjects:
 pop bx
 RET
 updateobjects endp
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;; DINA  ;;;;;;;;;;;;;;;;;;;;;;;;
