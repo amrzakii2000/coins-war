@@ -295,7 +295,7 @@ coiny               dw      1d,1d,1d,1d,1d,1d,1d,1d
 coinsx1             dw      ?
 coinsy1             dw      ?
 coinsize            dw      8
-coinvelocity        dw      3
+coinspeed        dw      3
 variable1           dw      0ADh
 xplayer1velocity    dw   7
 yplayer1velocity    dw   7
@@ -1485,7 +1485,7 @@ jmp newcoinsinitialization
 
 coninuefalling:
 mov ax,coiny[di]
-add ax,3
+add ax,coinspeed
 mov coiny[di],ax
 jmp last
 
