@@ -371,9 +371,9 @@
 	;variables used in the game timer
 	seconds           db  99
 	timer             dw  20
-	gameovermsg       db  'Game Over Time Limit Reached The Game is a DRAW$'
-	player1winsmsg    db  'Player 1 is the WINNER !$'
-	player2winsmsg    db  'Player 2 is the WINNER !$'
+	gameovermsg       db  'Game Over Time Limit Reached The Game is a DRAW (PRESS 1 TO CONTINUE)$'
+	player1winsmsg    db  'Player 1 is the WINNER ! (PRESS 1 TO CONTINUE)$'
+	player2winsmsg    db  'Player 2 is the WINNER ! (PRESS 1 TO CONTINUE)$'
 
 	;variables used in the main menu
 	menu              db  "Welcome To Coins War",13,10
@@ -384,6 +384,17 @@
 	playmes           db  "Play now","$"
 	;variables used to display timer
 	timermsg          db  'Seconds Left : ','$'
+	;variables for getting user input
+	player1name       db  26                                                                                                                                                                               	;MAX NUMBER OF CHARACTERS ALLOWED (25).
+	                  db  ?                                                                                                                                                                                	;NUMBER OF CHARACTERS ENTERED BY USER.
+	                  db  26 dup(0)                                                                                                                                                                        	;CHARACTERS ENTERED BY USER.
+
+	player2name       db  26                                                                                                                                                                               	;MAX NUMBER OF CHARACTERS ALLOWED (25).
+	                  db  ?                                                                                                                                                                                	;NUMBER OF CHARACTERS ENTERED BY USER.
+	                  db  26 dup(0)                                                                                                                                                                        	;CHARACTERS ENTERED BY USER.
+
+	getplayer1namemsg db  'Enter the name of player 1  $'
+	getplayer2namemsg db  'Enter the name of player 2  $'
 
 
 .code
@@ -422,10 +433,7 @@ Main proc Far
 	                        int  21h
 	                        jmp  endgame
                                 
-	PLAY:                   mov  ah,0
-	                        mov  al,13h
-	                        mov  bh,0
-	                        int  10h
+	PLAY:                   call getnamesandprint
 
 	maingameloop:           
                                
@@ -449,7 +457,7 @@ Main proc Far
 	timeloop:               
 	;GET SYSTEM TIME.
 	                        mov  ah, 2ch
-	                        int  21h                     	;RETURN SECONDS IN DH.
+	                        int  21h                        	;RETURN SECONDS IN DH.
 	;CHECK IF ONE SECOND HAS PASSED.
 	                        cmp  dh, seconds
 	                        je   LOOPTOGAME
@@ -478,35 +486,35 @@ Main ENDP
 
 	;draws first player health
 FirstHealthBar PROC
-	                        mov  cx,10                   	;Column
-	                        mov  dx,150                  	;Row
-	                        mov  al,0fh                  	;Pixel color
-	                        mov  ah,0ch                  	;Draw Pixel Command
+	                        mov  cx,10                      	;Column
+	                        mov  dx,150                     	;Row
+	                        mov  al,0fh                     	;Pixel color
+	                        mov  ah,0ch                     	;Draw Pixel Command
 	first1:                 int  10h
 	                        inc  cx
 	                        cmp  cx,100
 	                        jnz  first1
-	                        mov  cx,10                   	;Column
-	                        mov  dx,154                  	;Row
+	                        mov  cx,10                      	;Column
+	                        mov  dx,154                     	;Row
 	first2:                 int  10h
 	                        inc  cx
 	                        cmp  cx,100
 	                        jnz  first2
-	                        mov  cx,10                   	;Column
-	                        mov  dx,150                  	;Row
+	                        mov  cx,10                      	;Column
+	                        mov  dx,150                     	;Row
 	first3:                 int  10h
 	                        inc  dx
 	                        cmp  dx,154
 	                        jnz  first3
-	                        mov  cx,100                  	;Column
+	                        mov  cx,100                     	;Column
 	                        mov  dx,150
 	first4:                 int  10h
 	                        inc  dx
 	                        cmp  dx,155
 	                        jnz  first4
-	                        mov  cx,11                   	;Column
-	                        mov  dx,151                  	;Row
-	                        mov  al,04h                  	;Pixel color
+	                        mov  cx,11                      	;Column
+	                        mov  dx,151                     	;Row
+	                        mov  al,04h                     	;Pixel color
 	first5:                 
 	                        int  10h
 	                        inc  dx
@@ -522,35 +530,35 @@ FirstHealthBar ENDP
 
 	;draws seconed player health
 SeconedHealthBar PROC
-	                        mov  cx,220                  	;Column
-	                        mov  dx,150                  	;Row
-	                        mov  al,0fh                  	;Pixel color
-	                        mov  ah,0ch                  	;Draw Pixel Command
+	                        mov  cx,220                     	;Column
+	                        mov  dx,150                     	;Row
+	                        mov  al,0fh                     	;Pixel color
+	                        mov  ah,0ch                     	;Draw Pixel Command
 	seconed1:               int  10h
 	                        inc  cx
 	                        cmp  cx,310
 	                        jnz  seconed1
-	                        mov  cx,220                  	;Column
-	                        mov  dx,154                  	;Row
+	                        mov  cx,220                     	;Column
+	                        mov  dx,154                     	;Row
 	seconed2:               int  10h
 	                        inc  cx
 	                        cmp  cx,310
 	                        jnz  seconed2
-	                        mov  cx,220                  	;Column
-	                        mov  dx,150                  	;Row
+	                        mov  cx,220                     	;Column
+	                        mov  dx,150                     	;Row
 	seconed3:               int  10h
 	                        inc  dx
 	                        cmp  dx,154
 	                        jnz  seconed3
-	                        mov  cx,310                  	;Column
+	                        mov  cx,310                     	;Column
 	                        mov  dx,150
 	seconed4:               int  10h
 	                        inc  dx
 	                        cmp  dx,155
 	                        jnz  seconed4
-	                        mov  cx,221                  	;Column
-	                        mov  dx,151                  	;Row
-	                        mov  al,01h                  	;Pixel color
+	                        mov  cx,221                     	;Column
+	                        mov  dx,151                     	;Row
+	                        mov  al,01h                     	;Pixel color
 	seconed5:               int  10h
 	                        inc  dx
 	                        int  10h
@@ -565,13 +573,13 @@ SeconedHealthBar ENDP
 
 	;if first player is hit
 Damage1 PROC
-	                        mov  ah,0ch                  	;Draw Pixel Command
+	                        mov  ah,0ch                     	;Draw Pixel Command
 	                        sub  PLayer1Health,5
-	                        mov  cx,PLayer1Health        	;Column
+	                        mov  cx,PLayer1Health           	;Column
 	                        cmp  cx,10
 	                        jz   dead1
-	blackrow1:              mov  dx,151                  	;Row
-	                        mov  al,00h                  	;Pixel color
+	blackrow1:              mov  dx,151                     	;Row
+	                        mov  al,00h                     	;Pixel color
 	                        int  10h
 	                        inc  dx
 	                        int  10h
@@ -590,13 +598,13 @@ Damage1 ENDP
 
 	;if seconed player is hit
 Damage2 PROC
-	                        mov  ah,0ch                  	;Draw Pixel Command
+	                        mov  ah,0ch                     	;Draw Pixel Command
 	                        sub  PLayer2Health,5
-	                        mov  cx,PLayer2Health        	;Column
+	                        mov  cx,PLayer2Health           	;Column
 	                        cmp  cx,220
 	                        jz   dead2
-	blackrow2:              mov  dx,151                  	;Row
-	                        mov  al,00h                  	;Pixel color
+	blackrow2:              mov  dx,151                     	;Row
+	                        mov  al,00h                     	;Pixel color
 	                        int  10h
 	                        inc  dx
 	                        int  10h
@@ -615,59 +623,59 @@ Damage2 ENDP
 
 	;Appearing text
 Text PROC
-	                        mov  si,@data                	;moves to si the location in memory of the data segment
-	                        mov  ah,13h                  	;service to print string in graphic mode
-	                        mov  al,0                    	;sub-service 0 all the characters will be in the same color(bl) and cursor position is not updated after the string is written
-	                        mov  bh,0                    	;page number=always zero
-	                        mov  bl,0fh                  	;color of the text (white foreground and black background)
-	                        mov  cx,7                    	;length of string
-	                        mov  dh,199                  	;y coordinate
-	                        mov  dl,65                   	;x coordinate
-	                        mov  es,si                   	;moves to es the location in memory of the data segment
-	                        mov  bp,offset msg1          	;mov bp the offset of the string
+	                        mov  si,@data                   	;moves to si the location in memory of the data segment
+	                        mov  ah,13h                     	;service to print string in graphic mode
+	                        mov  al,0                       	;sub-service 0 all the characters will be in the same color(bl) and cursor position is not updated after the string is written
+	                        mov  bh,0                       	;page number=always zero
+	                        mov  bl,0fh                     	;color of the text (white foreground and black background)
+	                        mov  cx,7                       	;length of string
+	                        mov  dh,199                     	;y coordinate
+	                        mov  dl,65                      	;x coordinate
+	                        mov  es,si                      	;moves to es the location in memory of the data segment
+	                        mov  bp,offset player1name+2    	;mov bp the offset of the string
 	                        int  10h
 
-	                        mov  dh,199                  	;y coordinate
-	                        mov  dl,92                   	;x coordinate
-	                        mov  es,si                   	;moves to es the location in memory of the data segment
-	                        mov  bp,offset msg2          	;mov bp the offset of the string
+	                        mov  dh,199                     	;y coordinate
+	                        mov  dl,92                      	;x coordinate
+	                        mov  es,si                      	;moves to es the location in memory of the data segment
+	                        mov  bp,offset player2name+2    	;mov bp the offset of the string
 	                        int  10h
 	                        mov  bl, 0ch
 	                        mov  cx,1
-	                        mov  dh,201                  	;y coordinate
-	                        mov  dl,92                   	;x coordinate
-	                        mov  es,si                   	;moves to es the location in memory of the data segment
-	                        mov  bp,offset msglives      	;mov bp the offset of the string
+	                        mov  dh,201                     	;y coordinate
+	                        mov  dl,92                      	;x coordinate
+	                        mov  es,si                      	;moves to es the location in memory of the data segment
+	                        mov  bp,offset msglives         	;mov bp the offset of the string
 	                        int  10h
-	                        mov  dh,201                  	;y coordinate
-	                        mov  dl,65                   	;x coordinate
-	                        mov  es,si                   	;moves to es the location in memory of the data segment
-	                        mov  bp,offset msglives      	;mov bp the offset of the string
+	                        mov  dh,201                     	;y coordinate
+	                        mov  dl,65                      	;x coordinate
+	                        mov  es,si                      	;moves to es the location in memory of the data segment
+	                        mov  bp,offset msglives         	;mov bp the offset of the string
 	                        int  10h
 	                        mov  bl,0fh
 	                        mov  cx,1
-	                        mov  dh,201                  	;y coordinate
-	                        mov  dl,94                   	;x coordinate
-	                        mov  es,si                   	;moves to es the location in memory of the data segment
-	                        mov  bp,offset lives2        	;mov bp the offset of the string
+	                        mov  dh,201                     	;y coordinate
+	                        mov  dl,94                      	;x coordinate
+	                        mov  es,si                      	;moves to es the location in memory of the data segment
+	                        mov  bp,offset lives2           	;mov bp the offset of the string
 	                        int  10h
-	                        mov  dh,201                  	;y coordinate
-	                        mov  dl,67                   	;x coordinate
-	                        mov  es,si                   	;moves to es the location in memory of the data segment
-	                        mov  bp,offset lives1        	;mov bp the offset of the string
+	                        mov  dh,201                     	;y coordinate
+	                        mov  dl,67                      	;x coordinate
+	                        mov  es,si                      	;moves to es the location in memory of the data segment
+	                        mov  bp,offset lives1           	;mov bp the offset of the string
 	                        int  10h
 	                        mov  cx,7
-	                        mov  dh,2                    	;y coordinate
-	                        mov  dl,16                   	;x coordinate
-	                        mov  es,si                   	;moves to es the location in memory of the data segment
-	                        mov  bp,offset round         	;mov bp the offset of the string
+	                        mov  dh,2                       	;y coordinate
+	                        mov  dl,16                      	;x coordinate
+	                        mov  es,si                      	;moves to es the location in memory of the data segment
+	                        mov  bp,offset round            	;mov bp the offset of the string
 	                        int  10h
 	;////////////////////
 	                        mov  cx,15
-	                        mov  dh,6                    	;y coordinate
-	                        mov  dl,10                   	;x coordinate
-	                        mov  es,si                   	;moves to es the location in memory of the data segment
-	                        mov  bp,offset timermsg      	;mov bp the offset of the string
+	                        mov  dh,6                       	;y coordinate
+	                        mov  dl,10                      	;x coordinate
+	                        mov  es,si                      	;moves to es the location in memory of the data segment
+	                        mov  bp,offset timermsg         	;mov bp the offset of the string
 	                        int  10h
 	                       
                         
@@ -675,33 +683,33 @@ Text PROC
 
 	;;;;;;;;DINA;;;;;;;;;;;
 	                        mov  cx,6
-	                        mov  dh,203                  	;y coordinate
-	                        mov  dl,65                   	;x coordinate
-	                        mov  es,si                   	;moves to es the location in memory of the data segment
-	                        mov  bp,offset msg3          	;mov bp the offset of the string
+	                        mov  dh,203                     	;y coordinate
+	                        mov  dl,65                      	;x coordinate
+	                        mov  es,si                      	;moves to es the location in memory of the data segment
+	                        mov  bp,offset msg3             	;mov bp the offset of the string
 	                        int  10h
-	                        mov  dh,203                  	;y coordinate
-	                        mov  dl,92                   	;x coordinate
-	                        mov  es,si                   	;moves to es the location in memory of the data segment
-	                        mov  bp,offset msg3          	;mov bp the offset of the string
+	                        mov  dh,203                     	;y coordinate
+	                        mov  dl,92                      	;x coordinate
+	                        mov  es,si                      	;moves to es the location in memory of the data segment
+	                        mov  bp,offset msg3             	;mov bp the offset of the string
 	                        int  10h
 
-	                        mov  dh,203                  	;y coordinate
-	                        mov  dl,71                   	;x coordinate
+	                        mov  dh,203                     	;y coordinate
+	                        mov  dl,71                      	;x coordinate
 	                        mov  ah,02h
 	                        int  10h
 	                        mov  ax,score1
 	                        call printnumbers
 
-	                        mov  dh,203                  	;y coordinate
-	                        mov  dl,98                   	;x coordinate
+	                        mov  dh,203                     	;y coordinate
+	                        mov  dl,98                      	;x coordinate
 	                        mov  ah,02h
 	                        int  10h
 	                        mov  ax,score2
 	                        call printnumbers
 
-	                        mov  dh,6                    	;y coordinate
-	                        mov  dl,25                   	;x coordinate
+	                        mov  dh,6                       	;y coordinate
+	                        mov  dl,25                      	;x coordinate
 	                        mov  ah,02h
 	                        int  10h
 	                        mov  ax,timer
@@ -1604,19 +1612,19 @@ updatecoins proc near
 	                        jmp  last
 
 	newcoinsinitialization: 
-	                        call getrandom               	;get random value           ;
-	                        call getrandomfrom1to20      	;get random value from 1 to 20
-	                        mov  coiny[di],ax            	;put y of coin with random value
+	                        call getrandom                  	;get random value           ;
+	                        call getrandomfrom1to20         	;get random value from 1 to 20
+	                        mov  coiny[di],ax               	;put y of coin with random value
 
-	                        call getrandom               	;get random value
-	                        call getrandomfrom1to60      	;get random value from 1 to 60
+	                        call getrandom                  	;get random value
+	                        call getrandomfrom1to60         	;get random value from 1 to 60
 	                        add  ax,coinx[di]
-	                        cmp  ax,290                  	;compare the new value of x with 300(end of screen width)
+	                        cmp  ax,290                     	;compare the new value of x with 300(end of screen width)
 	                        jg   changex
 	                        mov  coinx[di],ax
 	                        jmp  last
 
-	changex:                                             	; if the new value of x greater than 300 will subtract number from 1 to 20
+	changex:                                                	; if the new value of x greater than 300 will subtract number from 1 to 20
 	                        call getrandom
 	                        call getrandomfrom1to60
 	                        mov  bx,ax
@@ -1853,12 +1861,12 @@ clearobjects endp
 terminateandgetwinner PROC
 	                        mov  al,3
 	                        mov  ah,0
-	                        int  10h                     	;change to text mode
+	                        int  10h                        	;change to text mode
 	                        mov  ax,0600h
 	                        mov  bh,07
 	                        mov  cx,0
 	                        mov  dx,184fh
-	                        int  10h                     	;clear the screen
+	                        int  10h                        	;clear the screen
 	;compare the scores to know the winner
 	                        mov  ax,score1
 	                        mov  bx,score2
@@ -1878,8 +1886,15 @@ terminateandgetwinner PROC
 	dispdraw:               mov  ah,9
 	                        mov  dx,offset gameovermsg
 	                        int  21h
-	endwinnerscreen:        mov  ax, 4c00h
-	                        int  21h                     	;end the program
+	endwinnerscreen:        mov  ah,01
+	                        int  16h
+	                        jz   endwinnerscreen
+	                        mov  ah,0
+	                        int  16h
+	                        cmp  ah,2
+	                        jnz  endwinnerscreen
+	                        mov  ax, 4c00h
+	                        int  21h                        	;end the program
 
 
 terminateandgetwinner endp
@@ -1908,6 +1923,54 @@ printax proc
 	                        ret
 printax endp
 
+getnameinput1 PROC
+	;CAPTURE STRING FROM KEYBOARD.
+	                        mov  ah, 0Ah                    	;SERVICE TO CAPTURE STRING FROM KEYBOARD.
+	                        mov  dx, offset player1name
+	                        int  21h
+
+	;DISPLAY STRING.
+	                        mov  ah, 9                      	;SERVICE TO DISPLAY STRING.
+	                        mov  dx, offset player1name+2
+	                        int  21h
+
+	                        ret
+getnameinput1 endp
+getnameinput2 PROC
+	;CAPTURE STRING FROM KEYBOARD.
+	                        mov  ah, 0Ah                    	;SERVICE TO CAPTURE STRING FROM KEYBOARD.
+	                        mov  dx, offset player2name
+	                        int  21h
+
+	;DISPLAY STRING.
+	                        mov  ah, 9                      	;SERVICE TO DISPLAY STRING.
+	                        mov  dx, offset player2name+2
+	                        int  21h
+
+	                        ret
+getnameinput2 endp
+
+getnamesandprint proc
+	                        mov  ah,0
+	                        mov  al,13h
+	                        int  10h
+	                        mov  ah,9
+	                        mov  dx,offset getplayer1namemsg
+	                        int  21h
+	                        call getnameinput1
+	                        mov  ah,0
+	                        mov  al,13h
+	                        int  10h
+	                        mov  ah,9
+	                        mov  dx,offset getplayer2namemsg
+	                        int  21h
+	                        call getnameinput2
+	                        mov  ah,0
+	                        mov  al,13h
+	                        mov  bh,0
+	                        int  10h
+	                        ret
+getnamesandprint endp
 
 End main
 
