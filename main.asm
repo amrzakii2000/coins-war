@@ -370,7 +370,7 @@
 
 	;variables used in the game timer
 	seconds           db  99
-	timer             dw  10
+	timer             dw  20
 	gameovermsg       db  'Game Over Time Limit Reached The Game is a DRAW$'
 	player1winsmsg    db  'Player 1 is the WINNER !$'
 	player2winsmsg    db  'Player 2 is the WINNER !$'
@@ -382,6 +382,8 @@
 	                  db  "3. Exit",13,10,'$'
 	chatmes           db  "Welcome to the chat !","$"
 	playmes           db  "Play now","$"
+	;variables used to display timer
+	timermsg          db  'Seconds Left : ','$'
 
 
 .code
@@ -660,6 +662,15 @@ Text PROC
 	                        mov  es,si                   	;moves to es the location in memory of the data segment
 	                        mov  bp,offset round         	;mov bp the offset of the string
 	                        int  10h
+	;////////////////////
+	                        mov  cx,15
+	                        mov  dh,6                    	;y coordinate
+	                        mov  dl,10                   	;x coordinate
+	                        mov  es,si                   	;moves to es the location in memory of the data segment
+	                        mov  bp,offset timermsg      	;mov bp the offset of the string
+	                        int  10h
+	                       
+                        
 
 
 	;;;;;;;;DINA;;;;;;;;;;;
@@ -687,6 +698,13 @@ Text PROC
 	                        mov  ah,02h
 	                        int  10h
 	                        mov  ax,score2
+	                        call printnumbers
+
+	                        mov  dh,6                    	;y coordinate
+	                        mov  dl,25                   	;x coordinate
+	                        mov  ah,02h
+	                        int  10h
+	                        mov  ax,timer
 	                        call printnumbers
 
 	                        ret
