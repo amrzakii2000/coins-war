@@ -458,10 +458,10 @@ Main proc Far
 	                        jz   EXITGAME
 	; if the timer is 0 then exit
 	                        mov  ax,timer
-	                        call printax
-	                        mov  ah,2
-	                        mov  dl,' '
-	                        int  21h
+	; call printax
+	; mov  ah,2
+	; mov  dl,' '
+	; int  21h
                                 
 	;/////////////////////////////////////
 	LOOPTOGAME:             jmp  maingameloop
