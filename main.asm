@@ -332,19 +332,24 @@
 	fireball2y        dw  ?
 	coinx             dw  050d,0100d,120d,0150d,0200d,230d,260d,0290d
 	coiny             dw  1d,1d,1d,1d,1d,1d,1d,1d
+	healthpowerx      dw  60
+	healthpowery      dw  1
+	speedpowerx       dw  30
+	speedpowery       dw  1
+	powerupspeed      dw  3
+	ishealth          db  0
+	isspeed           db  0
+	p1gainspeed       db  0
+	p2gainspeed       db  0
 	coinsx1           dw  ?
 	coinsy1           dw  ?
 	coinsize          dw  8
-	coinspeed         dw  3
+	coinspeed         dw  2
 	variable1         dw  0ADh
-	xplayer1velocity  dw  7
-	yplayer1velocity  dw  7
-	xplayer2velocity  dw  7
-	yplayer2velocity  dw  7
+	player1velocity   dw  7
+	player2velocity   dw  7
 	fireball1velocity dw  15
 	fireball2velocity dw  15
-
-
 	input             db  ?
 	input2            db  ?
 	nomove            equ 0AAh
@@ -370,7 +375,8 @@
 
 	;variables used in the game timer
 	seconds           db  99
-	timer             dw  20
+	timer             dw  99
+	p1speedtimer           dw  0
 	gameovermsg       db  'Game Over Time Limit Reached The Game is a DRAW (PRESS 1 TO CONTINUE)$'
 	player1winsmsg    db  'Player 1 is the WINNER ! (PRESS 1 TO CONTINUE)$'
 	player2winsmsg    db  'Player 2 is the WINNER ! (PRESS 1 TO CONTINUE)$'
@@ -438,21 +444,14 @@ Main proc Far
 	maingameloop:           
                                
 	;///////////////////////////////
-	                        call drawBack
-	                        call DrawPlayer1
-	                        call DrawPlayer2
-	                        call Draweachcoin
-	                        call FirstHealthBar
-	                        call SeconedHealthBar
-	                        call Text
-	                        call Drawfireball
-	                        call Drawfireball2
+	                        call Initializepowerups
+	                        call Drawobjects
 	                        call getinput
 	                        call delay
 	                        call clearobjects
-	                        call cleareachcoin
 	                        call updateobjects
 	                        call updatecoins
+	                        call updatepowerups
 	;///////////////////////////////////////////
 	timeloop:               
 	;GET SYSTEM TIME.
@@ -466,13 +465,16 @@ Main proc Far
 	                        mov  seconds, dh
 	                        sub  timer,1d
 	                        jz   EXITGAME
+	                        mov  ax,p1speedtimer
+	                        cmp  ax,0
+	                        jne  decp1speedtimer
+	                        jmp  continueLoop
+	decp1speedtimer:        dec  ax
+	                        mov  p1speedtimer, ax
 	; if the timer is 0 then exit
+	continueLoop:           
 	                        mov  ax,timer
-	; call printax
-	; mov  ah,2
-	; mov  dl,' '
-	; int  21h
-                                
+	                            
 	;/////////////////////////////////////
 	LOOPTOGAME:             jmp  maingameloop
 
@@ -672,7 +674,7 @@ Text PROC
 	                        int  10h
 	;////////////////////
 	                        mov  cx,15
-	                        mov  dh,6                       	;y coordinate
+	                        mov  dh,3                       	;y coordinate
 	                        mov  dl,10                      	;x coordinate
 	                        mov  es,si                      	;moves to es the location in memory of the data segment
 	                        mov  bp,offset timermsg         	;mov bp the offset of the string
@@ -708,13 +710,24 @@ Text PROC
 	                        mov  ax,score2
 	                        call printnumbers
 
-	                        mov  dh,6                       	;y coordinate
+	                        mov  dh,3                       	;y coordinate
 	                        mov  dl,25                      	;x coordinate
 	                        mov  ah,02h
 	                        int  10h
 	                        mov  ax,timer
 	                        call printnumbers
+							
+	                        mov  ax,p1speedtimer
+	                        cmp  ax,0
+	                        je   endtext
+	                        mov  dh, 2
+	                        mov  dl, 5
+	                        mov  ah,2
+	                        int  10h
+	                        mov  ax,p1speedtimer
+	                        call printnumbers
 
+	endtext:                
 	                        ret
 Text ENDP
 
@@ -1050,8 +1063,112 @@ Draweachcoin proc near
 	                        pop  di
 	                        RET
 Draweachcoin ENDP
+
+
 	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	;;;;;;;;;;;;;;;;;;;   Delay proc nearedure      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+DrawHealthPowerUp PROC near
+
+							
+	                        mov  bl,ishealth
+	                        cmp  bl,1
+	                        jne  healthterminate
+
+	                        mov  ah,0bh
+	                        mov  cx,healthpowerx
+	                        mov  dx,healthpowery
+	                        add  cx,healthW
+	                        add  dx,healthH
+
+	                        lea  di,health
+	                        jmp  healthloop
+
+	healthdraw:             
+	                        mov  ah,0ch
+	                        mov  al, [di]
+	                        mov  bh, 00h
+
+	                        cmp  al,0
+	                        jz   healthloop
+	                        int  10h
+
+
+	healthloop:             
+	                        inc  di
+	                        dec  cx
+	                        cmp  cx,healthpowerx
+	                        jnz  healthdraw
+
+	                        add  cx, healthW
+	                        dec  dx
+	                        cmp  dx,healthpowery
+	                        jz   healthterminate
+	                        jnz  healthdraw
+
+	healthterminate:        
+	                        RET
+DrawHealthPowerup ENDP
+
+DrawspeedPowerUp PROC near
+
+							
+	                        mov  bl,isspeed
+	                        cmp  bl,1
+	                        jne  speedterminate
+
+	                        mov  ah,0bh
+	                        mov  cx,speedpowerx
+	                        mov  dx,speedpowery
+	                        add  cx,speedW
+	                        add  dx,speedH
+
+	                        lea  di,speed
+	                        jmp  speedloop
+
+	speeddraw:              
+	                        mov  ah,0ch
+	                        mov  al, [di]
+	                        mov  bh, 00h
+
+	                        cmp  al,0
+	                        jz   speedloop
+	                        int  10h
+
+
+	speedloop:              
+	                        inc  di
+	                        dec  cx
+	                        cmp  cx,speedpowerx
+	                        jnz  speeddraw
+
+	                        add  cx, speedW
+	                        dec  dx
+	                        cmp  dx,speedpowery
+	                        jz   speedterminate
+	                        jnz  speeddraw
+
+	speedterminate:         
+	                        RET
+DrawSpeedPowerup ENDP
+
+
+Drawobjects proc near
+	                        call drawBack
+	                        call DrawPlayer1
+	                        call DrawPlayer2
+	                        call Draweachcoin
+	                        call FirstHealthBar
+	                        call SeconedHealthBar
+	                        call Text
+	                        call Drawfireball
+	                        call Drawfireball2
+	                        call DrawHealthPowerUp
+	                        call DrawSpeedPowerup
+
+
+
+	                        RET
+Drawobjects ENDP
 
 delay proc near
 	                        push cx
@@ -1264,41 +1381,44 @@ updateobjects proc near
 
 	checkup1:               
 	                        mov  bx,player1y
-	                        cmp  bx,220
+	                        sub  bx,player1velocity
+	                        cmp  bx,210
 	                        jg   moveup1
 	                        jmp  nextupdate1
 	moveup1:                
-	                        sub  bx,yplayer1velocity
 	                        mov  player1y, bx
 	                        jmp  nextupdate1
 
 	checkdown1:             
 	                        mov  bx,player1y
+	                        add  bx,player1velocity
 	                        cmp  bx,340
 	                        jl   movedown1
 	                        jmp  nextupdate1
 	movedown1:              
-	                        add  bx,yplayer1velocity
+	                        
 	                        mov  player1y, bx
 	                        jmp  nextupdate1
 
 	checkleft1:             
 	                        mov  bx,player1x
+	                        sub  bx,player1velocity
 	                        cmp  bx,-60
 	                        jg   moveleft1
 	                        jmp  nextupdate1
 	moveleft1:              
-	                        sub  bx,xplayer1velocity
+	                        
 	                        mov  player1x, bx
 	                        jmp  nextupdate1
 
 	checkright1:            
 	                        mov  bx,player1x
+	                        add  bx,player1velocity
 	                        cmp  bx,180
 	                        jle  moveright1
 	                        jmp  nextupdate1
 	moveright1:             
-	                        add  bx,xplayer1velocity
+	                        
 	                        mov  player1x, bx
 	                        jmp  nextupdate1
 
@@ -1325,41 +1445,45 @@ updateobjects proc near
 
 	checkup2:               
 	                        mov  bx,player2y
-	                        cmp  bx,220
+	                        sub  bx,player2velocity
+	                        cmp  bx,210
 	                        jg   moveup2
 	                        jmp  fireball1update
 	moveup2:                
-	                        sub  bx,yplayer2velocity
+	                        
 	                        mov  player2y, bx
 	                        jmp  fireball1update
 
 	checkdown2:             
 	                        mov  bx,player2y
+	                        add  bx,player2velocity
 	                        cmp  bx,340
 	                        jl   movedown2
 	                        jmp  fireball1update
 	movedown2:              
-	                        add  bx,yplayer2velocity
+	                        
 	                        mov  player2y, bx
 	                        jmp  fireball1update
 
 	checkleft2:             
 	                        mov  bx,player2x
+	                        sub  bx,player2velocity
 	                        cmp  bx,-25
 	                        jg   moveleft2
 	                        jmp  fireball1update
 	moveleft2:              
-	                        sub  bx,xplayer2velocity
+	                        
 	                        mov  player2x, bx
 	                        jmp  fireball1update
 
 	checkright2:            
 	                        mov  bx,player2x
+	                        add  bx,player2velocity
 	                        cmp  bx,210
 	                        jle  moveright2
 	                        jmp  fireball1update
 	moveright2:             
-	                        add  bx,xplayer2velocity
+	                        
 	                        mov  player2x, bx
 	                        jmp  fireball1update
 
@@ -1502,6 +1626,21 @@ getrandomfrom1to60 proc
 	                        ret
 getrandomfrom1to60 endp
 
+
+getrandomfrom1to240 proc
+	                        push dx
+	                        push bx
+	                        mov  dx,0
+	                        mov  bx,240
+	                        div  bx
+	                        inc  dx
+	                        mov  ax,dx
+	                        pop  bx
+	                        pop  dx
+	                        ret
+getrandomfrom1to240 endp
+
+
 	;;;;;;;;;update coins/;;;;;;;;;;;;
 updatecoins proc near
 
@@ -1639,6 +1778,273 @@ updatecoins proc near
 	                        RET
 updatecoins ENDP
 
+
+updatepowerups proc near
+
+
+	                        mov  bl,ishealth
+	                        cmp  bl,1
+	                        jne  gotonext
+
+	healthfalling:          
+
+	                        mov  bx,healthpowery
+	checksameyp1:           
+	                        mov  dx,player1y
+	                        sub  dx,180
+	                        cmp  bx,dx
+	                        je   checksamexp11
+
+	                        add  dx,1
+	                        cmp  bx,dx
+	                        je   checksamexp11
+
+	                        add  dx,1
+	                        cmp  bx,dx
+	                        je   checksamexp11
+
+	                        add  dx,1
+	                        cmp  bx,dx
+	                        je   checksamexp11
+
+
+	                        jmp  checkhealthsecondplayer
+
+	checksamexp11:          
+	                        mov  dx,player1x
+	                        add  dx,60
+	                        cmp  healthpowerx,dx
+	                        jge  checksamexp12
+	                        jmp  checkhealthsecondplayer
+
+	checksamexp12:          
+	                        add  dx,30
+	                        cmp  healthpowerx,dx
+	                        jle  incp1health
+	                        jmp  checkhealthsecondplayer
+
+	incp1health:            
+	                        mov  bx,PLayer1Health
+	                        cmp  bx,100
+	                        je   healthconinuefalling
+	                        add  PLayer1Health,5
+	                        jmp  clearHealthatend
+
+
+	gotonext:               
+	                        jmp  startupdatingspeed
+
+
+	checkhealthsecondplayer:
+
+	                        mov  bx,healthpowery
+	checksameyp2:           
+	                        mov  dx,player2y
+	                        sub  dx,190
+	                        cmp  bx,dx
+	                        jge  checksamexp21
+
+	                        add  dx,1
+	                        cmp  bx,dx
+	                        je   checksamexp21
+
+	                        add  dx,1
+	                        cmp  bx,dx
+	                        je   checksamexp21
+
+	                        add  dx,1
+	                        cmp  bx,dx
+	                        je   checksamexp21
+
+
+	                        jmp  checkhealthend
+
+	checksamexp21:          
+	                        mov  dx,player2x
+	                        add  dx,60
+	                        cmp  healthpowerx,dx
+	                        jge  checksamexp22
+	                        jmp  checkhealthend
+
+	checksamexp22:          
+	                        add  dx,30
+	                        cmp  healthpowerx,dx
+	                        jle  incp2health
+	                        jmp  checkhealthend
+
+	incp2health:            mov  bx,PLayer2Health
+	                        cmp  bx,310
+	                        jge  healthconinuefalling
+	                        add  PLayer2Health,5
+	                        jmp  clearHealthatend
+
+
+	
+
+	checkhealthend:         
+	                        mov  bx,healthpowery
+	                        cmp  bx,190
+	                        jb   healthconinuefalling
+
+	clearhealthatend:       
+	                        mov  bl,0
+	                        mov  ishealth,bl
+	                        call clearHealth
+	                        jmp  startupdatingspeed
+
+	healthconinuefalling:   
+	                        mov  ax,healthpowery
+	                        add  ax,powerupspeed
+	                        mov  healthpowery,ax
+	                        jmp  startupdatingspeed
+
+	startupdatingspeed:     
+	                        mov  bl,isspeed
+	                        cmp  bl,1
+	                        jne  gotonext1
+
+	speedfalling:           
+
+	                        mov  bx,speedpowery
+speed@checksameyp1:
+	                        mov  dx,player1y
+	                        sub  dx,190
+	                        cmp  bx,dx
+	                        jge  speed@checksamexp11
+	                        jmp  checkspeedsecondplayer
+
+speed@checksamexp11:
+	                        mov  dx,player1x
+	                        add  dx,60
+	                        cmp  speedpowerx,dx
+	                        jge  speed@checksamexp12
+	                        jmp  checkspeedsecondplayer
+
+speed@checksamexp12:
+	                        add  dx,30
+	                        cmp  speedpowerx,dx
+	                        jle  checkactivespeed
+	                        jmp  checkspeedsecondplayer
+
+	checkactivespeed:       
+	                        mov  ax,p1speedtimer
+	                        cmp  ax,0
+	                        je   incp1speed
+	                        jmp  checkspeedsecondplayer
+	incp1speed:             
+	                        mov  bx,PLayer1velocity
+	                        add  player1velocity,bx
+	                        mov  ax,15
+	                        mov  p1speedtimer, ax
+	                        jmp  clearspeedatend
+
+
+	gotonext1:              
+	                        jmp  startupdatingdamage
+
+
+	checkspeedsecondplayer: 
+
+	                        mov  bx,speedpowery
+speed@checksameyp2:
+	                        mov  dx,player2y
+	                        sub  dx,180
+	                        cmp  bx,dx
+	                        jge  speed@checksamexp21
+	                        jmp  checkspeedend
+
+speed@checksamexp21:
+	                        mov  dx,player2x
+	                        add  dx,60
+	                        cmp  speedpowerx,dx
+	                        jge  speed@checksamexp22
+	                        jmp  checkspeedend
+
+speed@checksamexp22:
+	                        add  dx,30
+	                        cmp  speedpowerx,dx
+	                        jle  incp2speed
+	                        jmp  checkspeedend
+
+	incp2speed:             mov  bx,player2velocity
+	                        add  player2velocity,bx
+	                        jmp  clearspeedatend
+
+
+	
+
+	checkspeedend:          
+	                        mov  bx,speedpowery
+	                        cmp  bx,190
+	                        jb   speedconinuefalling
+
+	clearspeedatend:        
+	                        mov  bl,0
+	                        mov  isspeed,bl
+	                        call clearspeed
+	                        jmp  startupdatingdamage
+
+	speedconinuefalling:    
+	                        mov  ax,speedpowery
+	                        add  ax,powerupspeed
+	                        mov  speedpowery,ax
+	                        jmp  startupdatingdamage
+
+	startupdatingdamage:    
+	
+	                        RET
+updatepowerups ENDP
+
+
+Initializepowerups proc near
+
+	                       
+							
+	checkhealth:            mov  ax,timer
+	                        mov  bx,5
+	                        mov  dx,0
+	                        div  bx
+	                        cmp  dx,0
+	                        jne  checkspeed
+
+	                        mov  al,ishealth
+	                        cmp  al,1
+	                        je   checkspeed
+
+
+	                        mov  al,1
+	                        mov  ishealth,al
+
+	                        call getrandom
+	                        call getrandomfrom1to240
+	                        mov  healthpowerx,ax
+	                        mov  healthpowery,2
+
+	checkspeed:             
+	                        mov  ax, timer
+	                        mov  bx,10
+	                        mov  dx,0
+	                        div  bx
+	                        cmp  dx,0
+	                        jne  endcheck
+
+	                        mov  al,isspeed
+	                        cmp  al,1
+	                        je   endcheck
+
+
+	                        mov  al,1
+	                        mov  isspeed,al
+
+	                        call getrandom
+	                        call getrandomfrom1to240
+	                        mov  speedpowerx,ax
+	                        mov  speedpowery,2
+
+
+
+	endcheck:               RET
+Initializepowerups endp
 
 	;;;;;;;;;;;;;;;DINA;;;;;;;;;;;;;;;
 	;;;;;;;;;;;;;;;;player catch coin;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1840,6 +2246,63 @@ cleareachcoin proc near
 cleareachcoin ENDP
 
 
+clearHealth proc near
+
+	                        mov  si,healthpowerx
+	                        mov  di,healthpowery
+
+	                        add  si,healthW
+	                        add  di,healthH
+
+	                        mov  cx, healthpowerx
+	                        mov  dx, healthpowery
+	                        mov  ah,0ch
+	                        mov  al,00h
+
+	claerHealthcol:         
+
+	                        mov  dx,healthpowery
+	clearHealthrow:         
+	                        int  10h
+	                        inc  dx
+	                        cmp  dx,di
+	                        jnz  clearHealthrow
+
+	                        inc  cx
+	                        cmp  cx,si
+	                        jnz  claerHealthcol
+
+	                        RET
+clearHealth ENDP
+
+clearSpeed proc near
+
+	                        mov  si,speedpowerx
+	                        mov  di,speedpowery
+
+	                        add  si,speedW
+	                        add  di,speedH
+
+	                        mov  cx, speedpowerx
+	                        mov  dx, speedpowerx
+	                        mov  ah,0ch
+	                        mov  al,00h
+
+	claerspeedcol:          
+
+	                        mov  dx,speedpowery
+	clearspeedrow:          
+	                        int  10h
+	                        inc  dx
+	                        cmp  dx,di
+	                        jnz  clearspeedrow
+
+	                        inc  cx
+	                        cmp  cx,si
+	                        jnz  claerspeedcol
+
+	                        RET
+clearSpeed ENDP
 
 clearobjects proc near
 	                        push cx
@@ -1850,7 +2313,9 @@ clearobjects proc near
 	                        call clearplayer2
 	                        call clearfireball1
 	                        call clearfireball2
-
+	                        call cleareachcoin
+	                        call clearHealth
+	                        call clearSpeed
 	                        pop  ax
 	                        pop  dx
 	                        pop  cx
@@ -1898,31 +2363,6 @@ terminateandgetwinner PROC
 
 
 terminateandgetwinner endp
-
-
-printax proc
-	                        push ax
-	                        mov  cx, 0
-	                        mov  bx, 10
-@@loophereprintax:
-	                        mov  dx, 0
-	                        div  bx
-	                        push ax
-	                        add  dl, '0'
-	                        pop  ax
-	                        push dx
-	                        inc  cx
-	                        cmp  ax, 0
-	                        jnz  @@loophereprintax
-	                        mov  ah, 2
-@@loophereprintax2:
-	                        pop  dx
-	                        int  21h
-	                        loop @@loophereprintax2
-	                        pop  ax
-	                        ret
-printax endp
-
 getnameinput1 PROC
 	;CAPTURE STRING FROM KEYBOARD.
 	                        mov  ah, 0Ah                    	;SERVICE TO CAPTURE STRING FROM KEYBOARD.
