@@ -348,7 +348,6 @@
 	variable1         dw  0ADh
 	player1velocity   dw  7
 	player2velocity   dw  7
-	speedpowerend     dw  0     
 	fireball1velocity dw  15
 	fireball2velocity dw  15
 	input             db  ?
@@ -1820,31 +1819,6 @@ updatepowerups proc near
 	                        cmp  bx,dx
 	                        je   checksamexp11
 
-							 add  dx,1
-	                        cmp  bx,dx
-	                        je   checksamexp11
-
-	                        add  dx,1
-	                        cmp  bx,dx
-	                        je   checksamexp11
-
-	                        add  dx,1
-	                        cmp  bx,dx
-	                        je   checksamexp11
-
-
-							 add  dx,1
-	                        cmp  bx,dx
-	                        je   checksamexp11
-
-	                        add  dx,1
-	                        cmp  bx,dx
-	                        je   checksamexp11
-
-	                        add  dx,1
-	                        cmp  bx,dx
-	                        je   checksamexp11
-
 
 	                        jmp  checkhealthsecondplayer
 
@@ -1880,11 +1854,7 @@ updatepowerups proc near
 	                        mov  dx,player2y
 	                        sub  dx,190
 	                        cmp  bx,dx
-	                        je  checksamexp21
-							
-	                        add  dx,1
-	                        cmp  bx,dx
-	                        je   checksamexp21
+	                        jge  checksamexp21
 
 	                        add  dx,1
 	                        cmp  bx,dx
@@ -1894,10 +1864,10 @@ updatepowerups proc near
 	                        cmp  bx,dx
 	                        je   checksamexp21
 
-							add  dx,1
+	                        add  dx,1
 	                        cmp  bx,dx
 	                        je   checksamexp21
-							
+
 	                        jmp  checkhealthend
 
 	checksamexp21:          
@@ -1953,8 +1923,6 @@ speed@checksameyp1:
 	                        cmp  bx,dx
 	                        jge  speed@checksamexp11
 	                        jmp  checkspeedsecondplayer
-
-	
 
 speed@checksamexp11:
 	                        mov  dx,player1x
