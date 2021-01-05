@@ -1211,25 +1211,10 @@ Drawobjects proc near
 Drawobjects ENDP
 
 delay proc near
-	                        push cx
-	                        push ax
-
-	                        mov  cx,0ffffh
-
-	del1:                   
-
-	                        mov  ax,0
-
-	del2:                   
-	                        inc  ax
-	                        cmp  ax,0fh
-	                        jnz  del2
-
-	                        loop del1
-
-
-	                        pop  ax
-	                        pop  cx
+mov cx,0
+mov dx,25000
+mov ah,86h
+int 15h
 	                        RET
 delay endp
 
