@@ -1,4 +1,5 @@
 .model Compact
+.386
 .stack 64
 
 .data
@@ -339,8 +340,6 @@
 	powerupspeed      dw  3
 	ishealth          db  0
 	isspeed           db  0
-	p1gainspeed       db  0
-	p2gainspeed       db  0
 	coinsx1           dw  ?
 	coinsy1           dw  ?
 	coinsize          dw  8
@@ -348,6 +347,7 @@
 	variable1         dw  0ADh
 	player1velocity   dw  7
 	player2velocity   dw  7
+	speedpowerend     dw  0
 	fireball1velocity dw  15
 	fireball2velocity dw  15
 	input             db  ?
@@ -376,7 +376,8 @@
 	;variables used in the game timer
 	seconds           db  99
 	timer             dw  99
-	p1speedtimer           dw  0
+	p1speedtimer      dw  0
+	p2speedtimer      dw  0
 	gameovermsg       db  'Game Over Time Limit Reached The Game is a DRAW (PRESS 1 TO CONTINUE)$'
 	player1winsmsg    db  'Player 1 is the WINNER ! (PRESS 1 TO CONTINUE)$'
 	player2winsmsg    db  'Player 2 is the WINNER ! (PRESS 1 TO CONTINUE)$'
@@ -465,25 +466,40 @@ Main proc Far
 	                        mov  seconds, dh
 	                        sub  timer,1d
 	                        jz   EXITGAME
+
 	                        mov  ax,p1speedtimer
 	                        cmp  ax,0
 	                        jne  decp1speedtimer
-	                        jmp  continueLoop
+	                        jmp  checkp2speedtimer
 	decp1speedtimer:        dec  ax
 	                        mov  p1speedtimer, ax
 	; if the timer is 0 then exit
 	       
-
-                            mov  ax,p1speedtimer
 	                        cmp  ax,0
-							je returnbacktoitsspeed
-							jmp continueLoop
-							returnbacktoitsspeed:
-	                        push bx
-							mov bx,0
-							mov player1velocity,7
-							pop bx
-continueLoop:
+	                        je   returnbacktoitsspeed
+	                        jmp  checkp2speedtimer
+
+	returnbacktoitsspeed:   
+	                        mov  bx,7
+	                        mov  player1velocity,bx
+
+	checkp2speedtimer:      
+	                        mov  ax,p2speedtimer
+	                        cmp  ax,0
+	                        jne  decp2speedtimer
+	                        jmp  continueLoop
+
+	decp2speedtimer:        dec  ax
+	                        mov  p2speedtimer, ax
+	                        cmp  ax,0
+	                        je   returnp2backtoitsspeed
+	                        jmp  continueLoop
+
+	returnp2backtoitsspeed: 
+	                        mov  bx,7
+	                        mov  player2velocity,bx
+
+	continueLoop:           
 
 	                        mov  ax,timer
 	                            
@@ -731,13 +747,25 @@ Text PROC
 							
 	                        mov  ax,p1speedtimer
 	                        cmp  ax,0
-	                        je   endtext
-	                        mov  dh, 2
-	                        mov  dl, 5
+	                        je   checkprintp2speedtimer
+	                        mov  dh, 1
+	                        mov  dl, 2
 	                        mov  ah,2
 	                        int  10h
 	                        mov  ax,p1speedtimer
 	                        call printnumbers
+checkprintp2speedtimer:
+							mov ax, p2speedtimer
+							cmp ax,0
+							je endtext
+							mov dh, 1
+							mov dl, 35
+							mov ah,2
+							int 10h
+							mov ax, p2speedtimer
+							call printnumbers
+
+
 
 	endtext:                
 	                        ret
@@ -1819,6 +1847,31 @@ updatepowerups proc near
 	                        cmp  bx,dx
 	                        je   checksamexp11
 
+	                        add  dx,1
+	                        cmp  bx,dx
+	                        je   checksamexp11
+
+	                        add  dx,1
+	                        cmp  bx,dx
+	                        je   checksamexp11
+
+	                        add  dx,1
+	                        cmp  bx,dx
+	                        je   checksamexp11
+
+
+	                        add  dx,1
+	                        cmp  bx,dx
+	                        je   checksamexp11
+
+	                        add  dx,1
+	                        cmp  bx,dx
+	                        je   checksamexp11
+
+	                        add  dx,1
+	                        cmp  bx,dx
+	                        je   checksamexp11
+
 
 	                        jmp  checkhealthsecondplayer
 
@@ -1854,8 +1907,8 @@ updatepowerups proc near
 	                        mov  dx,player2y
 	                        sub  dx,190
 	                        cmp  bx,dx
-	                        jge  checksamexp21
-
+	                        je   checksamexp21
+							
 	                        add  dx,1
 	                        cmp  bx,dx
 	                        je   checksamexp21
@@ -1868,6 +1921,10 @@ updatepowerups proc near
 	                        cmp  bx,dx
 	                        je   checksamexp21
 
+	                        add  dx,1
+	                        cmp  bx,dx
+	                        je   checksamexp21
+							
 	                        jmp  checkhealthend
 
 	checksamexp21:          
@@ -1924,6 +1981,8 @@ speed@checksameyp1:
 	                        jge  speed@checksamexp11
 	                        jmp  checkspeedsecondplayer
 
+	
+
 speed@checksamexp11:
 	                        mov  dx,player1x
 	                        add  dx,60
@@ -1974,11 +2033,20 @@ speed@checksamexp21:
 speed@checksamexp22:
 	                        add  dx,30
 	                        cmp  speedpowerx,dx
-	                        jle  incp2speed
+	                        jle  checkp2activespeed
 	                        jmp  checkspeedend
+
+	checkp2activespeed:       
+	                        mov  ax,p2speedtimer
+	                        cmp  ax,0
+	                        je   incp2speed
+	                        jmp  checkspeedend
+	
 
 	incp2speed:             mov  bx,player2velocity
 	                        add  player2velocity,bx
+							mov ax,15
+							mov p2speedtimer, ax
 	                        jmp  clearspeedatend
 
 
@@ -2033,7 +2101,7 @@ Initializepowerups proc near
 
 	checkspeed:             
 	                        mov  ax, timer
-	                        mov  bx,10
+	                        mov  bx,2
 	                        mov  dx,0
 	                        div  bx
 	                        cmp  dx,0
