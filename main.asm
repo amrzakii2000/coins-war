@@ -1030,14 +1030,14 @@ Text PROC
 	                          mov  ax,score2
 	                          call printnumbers
 
-;;;;;;;;;;printing game timer;;;;;;;
-                              mov cx,timer
-							  mov di,10
-							  cmp cx,di
-							  jl putspace3
-							  jmp itsokaytoprintit3
- putspace3:
-                              mov  dh,3
+	;;;;;;;;;;printing game timer;;;;;;;
+	                          mov  cx,timer
+	                          mov  di,10
+	                          cmp  cx,di
+	                          jl   putspace3
+	                          jmp  itsokaytoprintit3
+	putspace3:                
+	                          mov  dh,3
 	                          mov  dl,25
 	                          mov  ah,02h
 	                          int  10h
@@ -1045,7 +1045,7 @@ Text PROC
 	                          mov  ah,2
 	                          int  21h
 
-					          mov  dh,3
+	                          mov  dh,3
 	                          mov  dl,26
 	                          mov  ah,02h
 	                          int  10h
@@ -1053,21 +1053,21 @@ Text PROC
 	                          mov  ah,2
 	                          int  21h
 
-					          mov  dh,3
+	                          mov  dh,3
 	                          mov  dl,27
 	                          mov  ah,02h
 	                          int  10h
 	                          mov  dl,' '
 	                          mov  ah,2
 	                          int  21h
-							   mov  dh,3
+	                          mov  dh,3
 	                          mov  dl,28
 	                          mov  ah,02h
 	                          int  10h
 	                          mov  dl,' '
 	                          mov  ah,2
 	                          int  21h
-							   mov  dh,3
+	                          mov  dh,3
 	                          mov  dl,29
 	                          mov  ah,02h
 	                          int  10h
@@ -1075,7 +1075,7 @@ Text PROC
 	                          mov  ah,2
 	                          int  21h
 	                          jmp  itsokaytoprintit3
- itsokaytoprintit3:
+	itsokaytoprintit3:        
 	                          mov  dh,3                       	;y coordinate
 	                          mov  dl,25                      	;x coordinate
 	                          mov  ah,02h
@@ -1139,22 +1139,22 @@ Text PROC
 
 	;;;;;;;;DINA;;;;;;;;;
 	;;;;;;;print damage timer;;;;;;;;;;;
-	checkprintp1damagetimer:       
+	checkprintp1damagetimer:  
 	                          mov  ax,p1damagetimer
 	                          cmp  ax,'0'
 	                          je   deletep1damagetimer
-                              jmp  printplayer1damagetimer
-	deletep1damagetimer:
-	                          mov dh,2
-							  mov dl,35
-							  mov ah,02h
-							  int 10h
-							  mov dl,' '
-							  mov ah,2
-							  int 21h
-							  jmp checkprintp2damagetimer
+	                          jmp  printplayer1damagetimer
+	deletep1damagetimer:      
+	                          mov  dh,2
+	                          mov  dl,35
+	                          mov  ah,02h
+	                          int  10h
+	                          mov  dl,' '
+	                          mov  ah,2
+	                          int  21h
+	                          jmp  checkprintp2damagetimer
 
-	printplayer1damagetimer:
+	printplayer1damagetimer:  
 	                          mov  ah,13h                     	;service to print string in graphic mode
 	                          mov  al,0                       	;sub-service 0 all the characters will be in the same color(bl) and cursor position is not updated after the string is written
 	                          mov  bh,0                       	;page number=always zero
@@ -1165,21 +1165,21 @@ Text PROC
 	                          lea  bp, p1damagetimer
 	                          int  10h
 
-	checkprintp2damagetimer:       
+	checkprintp2damagetimer:  
 	                          mov  ax,p2damagetimer
 	                          cmp  ax,'0'
 	                          je   deletep2damagetimer
-                              jmp  printplayer2damagetimer
-	deletep2damagetimer:
-	                          mov dh,3
-							  mov dl,5
-							  mov ah,02h
-							  int 10h
-							  mov dl,' '
-							  mov ah,2
-							  int 21h
-							  jmp checkprintp1freezetimer
-printplayer2damagetimer:
+	                          jmp  printplayer2damagetimer
+	deletep2damagetimer:      
+	                          mov  dh,3
+	                          mov  dl,5
+	                          mov  ah,02h
+	                          int  10h
+	                          mov  dl,' '
+	                          mov  ah,2
+	                          int  21h
+	                          jmp  checkprintp1freezetimer
+	printplayer2damagetimer:  
 	                          mov  ah,13h                     	;service to print string in graphic mode
 	                          mov  al,0                       	;sub-service 0 all the characters will be in the same color(bl) and cursor position is not updated after the string is written
 	                          mov  bh,0                       	;page number=always zero
@@ -1190,21 +1190,21 @@ printplayer2damagetimer:
 	                          lea  bp, p2damagetimer
 	                          int  10h
                            
-checkprintp1freezetimer:       
+	checkprintp1freezetimer:  
 	                          mov  ax,p1freezetimer
-							  cmp  ax,'0'
+	                          cmp  ax,'0'
 	                          je   deletep1freezetimer
-                              jmp  printplayer1freezetimer
-deletep1freezetimer:
-	                          mov dh,3
-							  mov dl,3
-							  mov ah,02h
-							  int 10h
-							  mov dl,' '
-							  mov ah,2
-							  int 21h
-							  jmp checkprintp2freezetimer
-printplayer1freezetimer:
+	                          jmp  printplayer1freezetimer
+	deletep1freezetimer:      
+	                          mov  dh,3
+	                          mov  dl,3
+	                          mov  ah,02h
+	                          int  10h
+	                          mov  dl,' '
+	                          mov  ah,2
+	                          int  21h
+	                          jmp  checkprintp2freezetimer
+	printplayer1freezetimer:  
 	                          mov  ah,13h                     	;service to print string in graphic mode
 	                          mov  al,0                       	;sub-service 0 all the characters will be in the same color(bl) and cursor position is not updated after the string is written
 	                          mov  bh,0                       	;page number=always zero
@@ -1215,22 +1215,22 @@ printplayer1freezetimer:
 	                          lea  bp, p1freezetimer
 	                          int  10h
 
-	checkprintp2freezetimer:       
+	checkprintp2freezetimer:  
 	                          mov  ax,p2freezetimer
 	                          cmp  ax,'0'
 	                          
 	                          je   deletep2freezetimer
-                              jmp  printplayer2freezetimer
-deletep2freezetimer:
-	                          mov dh,2
-							  mov dl,37
-							  mov ah,02h
-							  int 10h
-							  mov dl,' '
-							  mov ah,2
-							  int 21h
-							  jmp endtext
-printplayer2freezetimer:
+	                          jmp  printplayer2freezetimer
+	deletep2freezetimer:      
+	                          mov  dh,2
+	                          mov  dl,37
+	                          mov  ah,02h
+	                          int  10h
+	                          mov  dl,' '
+	                          mov  ah,2
+	                          int  21h
+	                          jmp  endtext
+	printplayer2freezetimer:  
 	                          mov  ah,13h                     	;service to print string in graphic mode
 	                          mov  al,0                       	;sub-service 0 all the characters will be in the same color(bl) and cursor position is not updated after the string is written
 	                          mov  bh,0                       	;page number=always zero
@@ -2043,7 +2043,7 @@ updateobjects proc near
 	checkup1:                 
 	                          mov  bx,player1y
 	                          sub  bx,player1velocity
-	                          cmp  bx,210
+	                          cmp  bx,200
 	                          jg   moveup1
 	                          jmp  nextupdate1
 	moveup1:                  
@@ -2107,7 +2107,7 @@ updateobjects proc near
 	checkup2:                 
 	                          mov  bx,player2y
 	                          sub  bx,player2velocity
-	                          cmp  bx,210
+	                          cmp  bx,200
 	                          jg   moveup2
 	                          jmp  fireball1update
 	moveup2:                  
@@ -2314,34 +2314,14 @@ updatecoins proc near
 	                          mov  bx,coiny[di]
 	checkifsameyp1:           
 	                          mov  dx,player1y
-	                          sub  dx,190
+	                          sub  dx,200
 	                          cmp  bx,dx
-	                          je   checkifsamexp11
-
-	                          add  dx,1
+	                          jge  checkifsameyp12
+	                          jmp  checkforsecondplayer
+	                         
+	checkifsameyp12:          add  dx,50
 	                          cmp  bx,dx
-	                          je   checkifsamexp11
-
-	                          add  dx,1
-	                          cmp  bx,dx
-	                          je   checkifsamexp11
-
-	                          add  dx,1
-	                          cmp  bx,dx
-	                          je   checkifsamexp11
-	                          add  dx,1
-	                          cmp  bx,dx
-	                          je   checkifsamexp11
-
-	                          add  dx,1
-	                          cmp  bx,dx
-	                          je   checkifsamexp11
-
-	                          add  dx,1
-	                          cmp  bx,dx
-	                          je   checkifsamexp11
-
-
+	                          jle  checkifsamexp11
 	                          jmp  checkforsecondplayer
 
 	checkifsamexp11:          
@@ -2370,52 +2350,14 @@ updatecoins proc near
 	                          mov  bx,coiny[di]
 	checkifsameyp2:           
 	                          mov  dx,player2y
-	                          sub  dx,190
+	                          sub  dx,200
 	                          cmp  bx,dx
-	                          je   checkifsamexp21
+	                          jge  checkifsameyp22
+	                          jmp  checkcoinsend
 
-	                          add  dx,1
+	checkifsameyp22:          add  dx,40
 	                          cmp  bx,dx
-	                          je   checkifsamexp21
-
-	                          add  dx,1
-	                          cmp  bx,dx
-	                          je   checkifsamexp21
-
-	                          add  dx,1
-	                          cmp  bx,dx
-	                          je   checkifsamexp21
-
-	                          add  dx,1
-	                          cmp  bx,dx
-	                          je   checkifsamexp21
-
-	                          add  dx,1
-	                          cmp  bx,dx
-	                          je   checkifsamexp21
-
-	                          add  dx,1
-	                          cmp  bx,dx
-	                          je   checkifsamexp21
-
-	                          add  dx,1
-	                          cmp  bx,dx
-	                          je   checkifsamexp21
-
-	                          add  dx,1
-	                          cmp  bx,dx
-	                          je   checkifsamexp21
-
-	                          add  dx,1
-	                          cmp  bx,dx
-	                          je   checkifsamexp21
-
-	                          add  dx,1
-	                          cmp  bx,dx
-	                          je   checkifsamexp21
-
-
-
+	                          jle  checkifsamexp21
 	                          jmp  checkcoinsend
 
 	checkifsamexp21:          
@@ -2491,23 +2433,14 @@ updatepowerups proc near
 	                          mov  bx,healthpowery
 	checksameyp1:             
 	                          mov  dx,player1y
-	                          sub  dx,180
+	                          sub  dx,200
 	                          cmp  bx,dx
-	                          je   checksamexp11
+	                          jge  checksameyp12
+	                          jmp  checkhealthsecondplayer
 
-	                          add  dx,1
+	checksameyp12:            add  dx,50
 	                          cmp  bx,dx
-	                          je   checksamexp11
-
-	                          add  dx,1
-	                          cmp  bx,dx
-	                          je   checksamexp11
-
-	                          add  dx,1
-	                          cmp  bx,dx
-	                          je   checksamexp11
-
-
+	                          jle  checksamexp11
 	                          jmp  checkhealthsecondplayer
 
 	checksamexp11:            
@@ -2540,22 +2473,14 @@ updatepowerups proc near
 	                          mov  bx,healthpowery
 	checksameyp2:             
 	                          mov  dx,player2y
-	                          sub  dx,190
+	                          sub  dx,200
 	                          cmp  bx,dx
-	                          jge  checksamexp21
+	                          jge  checksameyp22
+	                          jmp  checkhealthend
 
-	                          add  dx,1
+	checksameyp22:            add  dx,40
 	                          cmp  bx,dx
-	                          je   checksamexp21
-
-	                          add  dx,1
-	                          cmp  bx,dx
-	                          je   checksamexp21
-
-	                          add  dx,1
-	                          cmp  bx,dx
-	                          je   checksamexp21
-
+	                          jle  checksamexp21
 	                          jmp  checkhealthend
 
 	checksamexp21:            
@@ -2607,9 +2532,15 @@ updatepowerups proc near
 	                          mov  bx,speedpowery
 speed@checksameyp1:
 	                          mov  dx,player1y
-	                          sub  dx,190
+	                          sub  dx,200
 	                          cmp  bx,dx
-	                          jge  speed@checksamexp11
+	                          jge  speed@checksameyp12
+	                          jmp  checkspeedsecondplayer
+
+speed@checksameyp12:
+	                          add  dx,50
+	                          cmp  bx,dx
+	                          jle  speed@checksamexp11
 	                          jmp  checkspeedsecondplayer
 
 speed@checksamexp11:
@@ -2647,11 +2578,15 @@ speed@checksamexp12:
 	                          mov  bx,speedpowery
 speed@checksameyp2:
 	                          mov  dx,player2y
-	                          sub  dx,180
+	                          sub  dx,200
 	                          cmp  bx,dx
-	                          jge  speed@checksamexp21
+	                          jge  speed@checksameyp22
 	                          jmp  checkspeedend
-
+speed@checksameyp22:
+	                          add  dx,40
+	                          cmp  bx,dx
+	                          jle  speed@checksamexp21
+	                          jmp  checkspeedend
 speed@checksamexp21:
 	                          mov  dx,player2x
 	                          add  dx,60
@@ -2708,24 +2643,16 @@ speed@checksamexp22:
 		
 damage@checksameyp1:
 	                          mov  dx,player1y
-	                          sub  dx,190
+	                          sub  dx,200
 	                          cmp  bx,dx
-	                          je   damage@checksamexp11
-
-	                          add  dx,1
-	                          cmp  bx,dx
-	                          je   damage@checksamexp11
-
-	                          add  dx,1
-	                          cmp  bx,dx
-	                          je   damage@checksamexp11
-
-	                          add  dx,1
-	                          cmp  bx,dx
-	                          je   damage@checksamexp11
-
-
+	                          jge  damage@checksameyp12
 	                          jmp  checkdamagesecondplayer
+damage@checksameyp12:
+	                          add  dx,50
+	                          cmp  bx,dx
+	                          jle  damage@checksamexp11
+	                          jmp  checkdamagesecondplayer
+
 damage@checksamexp11:
 	                          mov  dx,player1x
 	                          add  dx,60
@@ -2758,22 +2685,17 @@ damage@checksamexp12:
 
 damage@checksameyp2:
 	                          mov  dx,player2y
-	                          sub  dx,180
+	                          sub  dx,200
 	                          cmp  bx,dx
-	                          je   damage@checksamexp21
+	                          jge   damage@checksameyp22
+							  jmp checkdamageend
 
-	                          add  dx,1
+damage@checksameyp22:
+	                          add  dx,40
 	                          cmp  bx,dx
-	                          je   damage@checksamexp21
+							  jle damage@checksamexp21
+	                          jmp   checkdamageend
 
-	                          add  dx,1
-	                          cmp  bx,dx
-	                          je   damage@checksamexp21
-	                          add  dx,1
-	                          cmp  bx,dx
-	                          je   damage@checksamexp21
-
-	                          jmp  checkdamageend
 damage@checksamexp21:
 	                          mov  dx,player2x
 	                          add  dx,60
@@ -2830,23 +2752,15 @@ damage@checksamexp22:
 		
 freeze@checksameyp1:
 	                          mov  dx,player1y
-	                          sub  dx,190
+	                          sub  dx,200
 	                          cmp  bx,dx
-	                          je   freeze@checksamexp11
+	                          jge   freeze@checksameyp12
+							  jmp checkfreezesecondplayer
 
-	                          add  dx,1
+freeze@checksameyp12:
+	                          add  dx,50
 	                          cmp  bx,dx
-	                          je   freeze@checksamexp11
-
-	                          add  dx,1
-	                          cmp  bx,dx
-	                          je   freeze@checksamexp11
-
-	                          add  dx,1
-	                          cmp  bx,dx
-	                          je   freeze@checksamexp11
-
-
+	                          jle   freeze@checksamexp11
 	                          jmp  checkfreezesecondplayer
 freeze@checksamexp11:
 	                          mov  dx,player1x
@@ -2879,21 +2793,15 @@ freeze@checksamexp12:
 
 freeze@checksameyp2:
 	                          mov  dx,player2y
-	                          sub  dx,180
+	                          sub  dx,200
 	                          cmp  bx,dx
-	                          je   freeze@checksamexp21
+	                          jge   freeze@checksameyp22
+							  jmp checkfreezeend
 
-	                          add  dx,1
+freeze@checksameyp22:
+	                          add  dx,40
 	                          cmp  bx,dx
-	                          je   freeze@checksamexp21
-
-	                          add  dx,1
-	                          cmp  bx,dx
-	                          je   freeze@checksamexp21
-	                          add  dx,1
-	                          cmp  bx,dx
-	                          je   freeze@checksamexp21
-
+	                          jle   freeze@checksamexp21
 	                          jmp  checkfreezeend
 freeze@checksamexp21:
 	                          mov  dx,player2x
@@ -2953,9 +2861,13 @@ decscore@checksameyp1:
 	                          mov  dx,player1y
 	                          sub  dx,200
 	                          cmp  bx,dx
-	                          jge  decscore@checksamexp11
-
-
+	                          jge  decscore@checksameyp12
+	                          jmp  checkdecscoresecondplayer
+decscore@checksameyp12:
+	                          
+	                          add  dx,50
+	                          cmp  bx,dx
+	                          jle  decscore@checksamexp11
 	                          jmp  checkdecscoresecondplayer
 
 decscore@checksamexp11:
@@ -2988,9 +2900,12 @@ decscore@checksameyp2:
 	                          mov  dx,player2y
 	                          sub  dx,200
 	                          cmp  bx,dx
-	                          jge  decscore@checksamexp21
-
-
+	                          jge  decscore@checksameyp22
+	                          jmp  checkdecscoreend
+decscore@checksameyp22:
+	                          add  dx,40
+	                          cmp  bx,dx
+	                          jle  decscore@checksamexp21
 	                          jmp  checkdecscoreend
 decscore@checksamexp21:
 	                          mov  dx,player2x
