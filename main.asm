@@ -862,7 +862,9 @@ Main proc Far
 	                          int   21h
 	                          jmp   endgame
                                 
-	PLAY:                     call  getnamesandprint
+	PLAY:                     
+	                          call  transition
+	                          call  getnamesandprint
 
 	maingameloop:             
                                
@@ -1180,16 +1182,16 @@ Text PROC
 	                          Print 92,199,player1name+2,7,0fh
 	                          Print 92,201,msglives,1,0ch
 	                          Print 65,201,msglives,1,0ch
-							  Print 94,201,lives2,1,0fh
-							  Print 67,201,lives1,1,0fh
-	                       	  Print 16,2,round,7,0fh
+	                          Print 94,201,lives2,1,0fh
+	                          Print 67,201,lives1,1,0fh
+	                          Print 16,2,round,7,0fh
 	                          Print 10,3,timermsg,15,0fh
 	                          
                         
 
 
 	;;;;;;;;DINA;;;;;;;;;;;
-							  Print 65,203,msg3,6,0fh
+	                          Print 65,203,msg3,6,0fh
 	                          Print 92,203,msg3,6,0fh
 
 
@@ -1208,7 +1210,7 @@ Text PROC
 	                          int   21h
 	                          jmp   itsokaytoprintit1
 
-	itsokaytoprintit1:       
+	itsokaytoprintit1:        
 	                          mov   dh,203                     	;y coordinate
 	                          mov   dl,71                      	;x coordinate
 	                          mov   ah,02h
@@ -1485,6 +1487,26 @@ printnumbers proc
 	                          ret
 printnumbers endp
 
+transition proc
+	                          mov   ah,0ch
+	                          mov   al,00h
+	                          mov   bl,00h
+
+	                          mov   cx,150
+	                          mov   dx,150
+
+	transrow:                 
+
+	transcol:                 
+	                          int   10h
+	                          dec   dx
+	                          jnz   transcol
+
+	                          dec   cx
+	                          jnz   transrow
+
+	                          RET
+transition endp
 
 drawBack proc near
 	                          mov   ah,0ch
