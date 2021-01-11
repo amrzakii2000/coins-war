@@ -15,7 +15,8 @@
 	instmsg2          db  'Press Enter to choose your mode$'
 	;;;Dina;;;
 	msg3              db  'Score:$'
-	round             db  'Round 1','$'
+	round             db  'Round ','$'
+	roundnum          db  '1'
 	score1            dw  0
 	score2            dw  0
 
@@ -696,8 +697,8 @@
 	isdamage          db  0
 	isfreeze          db  0
 	isdecscore        db  0
-	p1damage          dw  5
-	p2damage          dw  5
+	p1damage          dw  20
+	p2damage          dw  20
 	coinsx1           dw  ?
 	coinsy1           dw  ?
 	coinsize          dw  8
@@ -733,7 +734,7 @@
 	spaceto           dw  23
 	;variables used in the game timer
 	seconds           db  99
-	timer             dw  99
+	timer             dw  100
 	p1speedtimer      dw  '0'
 	p2speedtimer      dw  '0'
 	p1damagetimer     dw  '0'
@@ -742,10 +743,12 @@
 	p2freezetimer     dw  '0'
 	p1isfreezed       db  0
 	p2isfreezed       db  0
-	gameovermsg       db  'Game Over Time Limit Reached The Game is a DRAW (PRESS 1 TO CONTINUE)$'
-	player1winsmsg    db  'Player 1 is the WINNER ! (PRESS 1 TO CONTINUE)$'
-	player2winsmsg    db  'Player 2 is the WINNER ! (PRESS 1 TO CONTINUE)$'
-
+	player1winsmsg    db  'Player 1 is the WINNER ! (PRESS any key TO CONTINUE)$'
+	player2winsmsg    db  'Player 2 is the WINNER ! (PRESS any key TO CONTINUE)$'
+	player1gamewin	  db   'Player 1 Won the game (Press Space to exit or enter to return to main menu)$'
+	player2gamewin	  db   'Player 2 Won the game (Press Space to exit or enter to return to main menu)$'
+	player1roundswon  db  '0'
+	player2roundswon  db  '0'
 	;variables used in the main menu
 	menu              db  "Welcome To Coins War$"
 	playmsg           db  "Play$"
@@ -770,7 +773,10 @@
 .code
 
 Print Macro x,y,z,size,color
-	                         
+	                          mov   si,@data                   	;moves to si the location in memory of the data segment
+	                          mov   ah,13h                     	;service to print string in graphic mode
+	                          mov   al,0                       	;sub-service 0 all the characters will be in the same color(bl) and cursor position is not updated after the string is written
+	                          mov   bh,0
 	                          mov   bl,color                   	;color of the text (white foreground and black background)
 	                          mov   cx,size                    	;length of string
 	                          mov   dh,y                       	;y coordinate
@@ -787,7 +793,7 @@ Main proc Far
 
 	                          mov   ax,@data
 	                          mov   ds,ax
-	                        
+	                          call  PORTS_INTLIZATION
 	                          mov   ah, 0
 	                          mov   al, 13h
 	                          int   10H
@@ -797,10 +803,7 @@ Main proc Far
 	                          call  DrawZ
 	                          call  Drawballs
 	                          call  Drawicon
-	                          mov   si,@data                   	;moves to si the location in memory of the data segment
-	                          mov   ah,13h                     	;service to print string in graphic mode
-	                          mov   al,0                       	;sub-service 0 all the characters will be in the same color(bl) and cursor position is not updated after the string is written
-	                          mov   bh,0                       	;page number=always zero
+	;page number=always zero
 	                          Print 10,2,menu,20,0fh
 	                          Print 17,15,playmsg,4,0fh
 	                          Print 17, 17, chatmsg,4,0fh
@@ -867,7 +870,8 @@ Main proc Far
 	                          call  getnamesandprint
 
 	maingameloop:             
-                               
+	                          call  CheckforRoundend
+	                          call terminateandgetwinner
 	;///////////////////////////////
 	                          call  Initializepowerups
 	                          call  Drawobjects
@@ -889,7 +893,7 @@ Main proc Far
 	;if there is change then decrease the timer by 1
 	                          mov   seconds, dh
 	                          sub   timer,1d
-	                          jz    EXITGAME
+	                          
 
 
 
@@ -1010,9 +1014,10 @@ Main proc Far
 	                          mov   ax,timer
 	                            
 	;/////////////////////////////////////
+	
 	LOOPTOGAME:               jmp   maingameloop
 
-	EXITGAME:                 call  terminateandgetwinner
+					          
 
 
 	endgame:                  
@@ -1024,6 +1029,22 @@ Main proc Far
 	                          int   21h
 Main ENDP
 
+
+PORTS_INTLIZATION PROC
+	                          Mov   dx,3fbh
+	                          mov   al,10000000b
+	                          Out   dx,al
+	                          mov   dx,3f8h
+	                          mov   al,0ch
+	                          out   dx,al
+	                          mov   dx,3f9h
+	                          mov   al,00h
+	                          out   dx,al
+	                          mov   dx,3fbh
+	                          mov   al,00011011b
+	                          out   dx,al
+	                          RET
+PORTS_INTLIZATION ENDP
 
 	;draws first player health
 FirstHealthBar PROC
@@ -1179,12 +1200,13 @@ Text PROC
 	                          mov   al,0                       	;sub-service 0 all the characters will be in the same color(bl) and cursor position is not updated after the string is written
 	                          mov   bh,0                       	;page number=always zero
 	                          Print 65,199,player1name+2,7,0fh
-	                          Print 92,199,player1name+2,7,0fh
+	                          Print 92,199,player2name+2,7,0fh
 	                          Print 92,201,msglives,1,0ch
 	                          Print 65,201,msglives,1,0ch
 	                          Print 94,201,lives2,1,0fh
 	                          Print 67,201,lives1,1,0fh
-	                          Print 16,2,round,7,0fh
+	                          Print 16,2,round,6,0fh
+	                          Print 22,2 roundnum,1,0fh
 	                          Print 10,3,timermsg,15,0fh
 	                          
                         
@@ -3305,7 +3327,7 @@ Initializepowerups proc near
             
 							
 	checkhealth:              mov   ax,timer
-	                          mov   bx,5
+	                          mov   bx,10
 	                          mov   dx,0
 	                          div   bx
 	                          cmp   dx,0
@@ -3326,7 +3348,7 @@ Initializepowerups proc near
 
 	checkspeed:               
 	                          mov   ax, timer
-	                          mov   bx,10
+	                          mov   bx,15
 	                          mov   dx,0
 	                          div   bx
 	                          cmp   dx,0
@@ -3346,12 +3368,15 @@ Initializepowerups proc near
 	                          mov   speedpowery,1
 	checkdamage:              
 	                          mov   ax, timer
-	                          mov   bx,10
+	                          mov   bx,20
 	                          mov   dx,0
 	                          div   bx
 	                          cmp   dx,0
 	                          jne   checkfreeze
 
+							  mov bl,roundnum
+							  cmp bl,'3'
+						      jne checkfreeze
 	                          mov   al,isdamage
 	                          cmp   al,1
 	                          je    checkfreeze
@@ -3367,12 +3392,15 @@ Initializepowerups proc near
 
 	checkfreeze:              
 	                          mov   ax, timer
-	                          mov   bx,10
+	                          mov   bx,7
 	                          mov   dx,0
 	                          div   bx
 	                          cmp   dx,0
 	                          jne   checkdecscore
-
+							  
+							  mov bl,roundnum
+							  cmp bl,'2'
+							  jne checkdecscore
 	                          mov   al,isfreeze
 	                          cmp   al,1
 	                          je    checkdecscore
@@ -3388,7 +3416,7 @@ Initializepowerups proc near
 
 	checkdecscore:            
 	                          mov   ax,timer
-	                          mov   bx,5
+	                          mov   bx,12
 	                          mov   dx,0
 	                          div   bx
 	                          cmp   dx,0
@@ -3826,44 +3854,53 @@ clearobjects endp
 
 
 terminateandgetwinner PROC
-	                          mov   al,3
-	                          mov   ah,0
-	                          int   10h                        	;change to text mode
-	                          mov   ax,0600h
-	                          mov   bh,07
-	                          mov   cx,0
-	                          mov   dx,184fh
-	                          int   10h                        	;clear the screen
+	              
 	;compare the scores to know the winner
-	                          mov   ax,score1
-	                          mov   bx,score2
-	                          cmp   ax,bx
-	                          jz    dispdraw
-	                          ja    player1winsgame
-	                          jc    player2winsgame
-	player1winsgame:          mov   dx,offset player1winsmsg
-	                          mov   ah,9
-	                          int   21h
+	                          mov   bl,player1roundswon
+							  cmp bl,'2'
+							  je    player1winsgame
+							  mov bl,player2roundswon
+							  cmp bl,'2'
+							  je player2winsgame
+	                          jmp endterminate                      
+	                          
+	player1winsgame:          call transition
+							  Print 0,0,player1gamewin,75,0fh
+							  mov   bx,300D
+	                          mov   player1y,bx
+	                          mov   bx,60
+	                          mov   player1x,bx
+	                          call  DrawPlayer1
 	                          jmp   endwinnerscreen
-	player2winsgame:          mov   dx,offset player2winsmsg
-	                          mov   ah,9
-	                          int   21h
+
+	player2winsgame:          call transition
+							  Print 0,0,player2gamewin,75,0fh
+							  mov   bx,300D
+	                          mov   player2y,bx
+	                          mov   bx,60
+	                          mov   player2x,bx
+	                          call  DrawPlayer2
 	                          jmp   endwinnerscreen
+							  
 	;Display the end game string
-	dispdraw:                 mov   ah,9
-	                          mov   dx,offset gameovermsg
-	                          int   21h
+
 	endwinnerscreen:          mov   ah,01
 	                          int   16h
 	                          jz    endwinnerscreen
 	                          mov   ah,0
 	                          int   16h
-	                          cmp   ah,2
-	                          jnz   endwinnerscreen
+
+	                          cmp   ax,spacekey
+	                          jnz   returnmain
 	                          mov   ax, 4c00h
 	                          int   21h                        	;end the program
-
-
+							 
+    returnmain:				  cmp ax,enterkey
+							  jne endwinnerscreen
+							  call transition
+							  jmp mainmenu
+endterminate:
+Ret
 terminateandgetwinner endp
 getnameinput1 PROC
 	;CAPTURE STRING FROM KEYBOARD.
@@ -3913,6 +3950,155 @@ getnamesandprint proc
 	                          int   10h
 	                          ret
 getnamesandprint endp
+
+
+CheckforRoundend proc	near
+
+	                          mov   bx,lives2
+	                          cmp   bx,'0'
+	                          jne   Checkp1killed
+	                          jmp   player1winsround
+
+
+	Checkp1killed:            
+	                          mov   bx,lives1
+	                          cmp   bx,'0'
+	                          jne   checktimerend
+	                          jmp   player2winsround
+
+
+	checktimerend:            
+	                          mov   bx,timer
+	                          cmp   bx,0
+	                          jne   CheckKilledend
+	                          jmp   checkplayersscore
+
+	checkplayersscore:        
+	                          mov   bx,score1
+	                          mov   ax,score2
+	                          cmp   bx,ax
+	                          jg    player1winsround
+	                          jmp   player2winsround
+
+
+	player1winsround:         
+	                          call  transition
+	                          Print 0,0,player1winsmsg,52,0fh
+
+	                          mov   bx,300D
+	                          mov   player1y,bx
+
+	                          mov   bx,60
+	                          mov   player1x,bx
+
+	                          call  DrawPlayer1
+
+	                          inc   player1roundswon
+	                          inc   roundnum
+	                          jmp   waitforcontinuekey
+
+
+	player2winsround:         
+	                          call  transition
+	                          Print 0,0,player2winsmsg,52,0fh
+
+	                          mov   bx,300D
+	                          mov   player2y,bx
+
+	                          mov   bx,60
+	                          mov   player2x,bx
+
+	                          call  DrawPlayer2
+
+
+	                          inc   player2roundswon
+	                          inc   roundnum
+	                          jmp   waitforcontinuekey
+
+
+	waitforcontinuekey:       call  flushkeybuffer
+	                          mov   ah, 01
+	                          int   16h
+	                          JZ    waitforcontinuekey
+	                          mov   ah,0
+	                          int   16h
+	                         
+							  call flushkeybuffer
+	                          call  transition
+	                          call  Reintialize
+
+
+	CheckKilledend:           
+	                          RET
+	                          endp  CheckforRoundend
+
+
+
+
+ReIntialize proc near
+
+	                          mov   bx,'3'
+	                          mov   lives1,bx
+	                          mov   lives2,bx
+							  
+							  mov bx,100
+							  mov PLayer1Health,bx
+
+							  mov bx,310
+							  mov PLayer2Health,bx
+
+	                          mov   bx,0
+	                          mov   score1,bx
+	                          mov   score2,bx
+
+
+	                          mov   bx,-60D
+	                          mov   player1x,bx
+
+	                          mov   bx,300D
+	                          mov   player1y,bx
+
+	                          mov   bx,215D
+	                          mov   player2x,bx
+
+	                          mov   bx,300D
+	                          mov   player2y,bx
+
+	                          mov   bl,0
+	                          mov   ishealth,bl
+	                          mov   isspeed,bl
+	                          mov   isdamage,bl
+	                          mov   isfreeze,bl
+	                          mov   isdecscore,bl
+	                          mov   isfiring,bl
+	                          mov   isfiring2,bl
+	                          mov   p1hit,bl
+	                          mov   p2hit,bl
+	                          mov   p1isfreezed,bl
+	                          mov   p2isfreezed,bl
+	                          mov   input,bl
+	                          mov   input2,bl
+
+	                          mov   bx,20
+	                          mov   p1damage,bx
+	                          mov   p2damage,bx
+
+	                          mov   bx,'0'
+	                          mov   p1speedtimer,bx
+	                          mov   p1damagetimer,bx
+	                          mov   p1freezetimer,bx
+	                          mov   p2speedtimer,bx
+	                          mov   p2damagetimer,bx
+	                          mov   p2freezetimer,bx
+
+	                          mov   bx,100
+	                          mov   timer,bx
+
+
+
+
+	                          RET
+	                          endp  ReIntialize
 
 End main
 
