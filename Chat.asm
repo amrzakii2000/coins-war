@@ -118,7 +118,25 @@ MsgSend proc
 	                 inc  NumMsgSent
 					 cmp NumMsgSent,11
 					 jne Escape
-					 dec NumMsgSent
+;clear screen
+	                          mov   si,320
+	                          mov   di,100
+	                          mov   cx, 0
+	                          mov   ah,0ch
+	                          mov   al,00h
+	Clear:               
+	                          mov   dx,8
+
+	Clear2:               
+	                          int   10h
+	                          inc   dx
+	                          cmp   dx, di
+	                          jnz   Clear2 
+
+	                          inc   cx
+	                          cmp   cx, si
+	                          jnz   Clear
+					  		  mov NumMsgSent,1
 
 	Escape:          
 	                 ret
@@ -207,9 +225,26 @@ MsgRec proc
 	                 inc  NumMsgRecived
 					 cmp  NumMsgRecived,11
 					 jne  cont
+;clear screen
+						      mov   si,320
+	                          mov   di,200
+	                          mov   cx, 0
+	                          mov   ah,0ch
+	                          mov   al,00h
+	Clear3:               
+	                          mov   dx,112
 
+	Clear4:               
+	                          int   10h
+	                          inc   dx
+	                          cmp   dx, di
+	                          jnz   Clear4 
 
-					 dec  NumMsgRecived
+	                          inc   cx
+	                          cmp   cx, si
+	                          jnz   Clear3
+
+					 mov  NumMsgRecived,1
 	cont:             
 					 mov  MsgReceivedIndix,0
 	                 mov  cx,39
