@@ -118,7 +118,7 @@ MsgSend proc
 	                 inc  NumMsgSent
 					 cmp NumMsgSent,11
 					 jne Escape
-
+					 dec NumMsgSent
 
 	Escape:          
 	                 ret
@@ -209,7 +209,7 @@ MsgRec proc
 					 jne  cont
 
 
-					 mov  NumMsgRecived,1
+					 dec  NumMsgRecived
 	cont:             
 					 mov  MsgReceivedIndix,0
 	                 mov  cx,39
