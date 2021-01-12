@@ -1,2 +1,0 @@
-;Mohamed Shams
-;Chat Module
