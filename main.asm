@@ -670,10 +670,10 @@
 
 
 	earthx            dw  160D
-	earthy            dw  150D
+	earthy            dw  100D
 	player1x          dw  -60D
-	player1y          dw  300D
-	player2y          dw  300D
+	player1y          dw  280D
+	player2y          dw  280D
 	player2x          dw  215D
 	fireball1x        dw  ?
 	fireball1y        dw  ?
@@ -720,21 +720,21 @@
 	isfiring2         db  0
 	p1hit             db  0
 	p2hit             db  0
-	arrowup           equ 4800h
-	arrowdown         equ 5000h
-	arrowright        equ 4D00h
-	arrowleft         equ 4B00h
-	Wkey              equ 1177h
-	Akey              equ 1E61h
-	Skey              equ 1f73h
-	Dkey              equ 2064h
-	spacekey          equ 3920h
-	enterkey          equ 1C0Dh
+	arrowup           equ 48h
+	arrowdown         equ 50h
+	arrowright        equ 4Dh
+	arrowleft         equ 4Bh
+	Wkey              equ 11h
+	Akey              equ 1Eh
+	Skey              equ 1fh
+	Dkey              equ 20h
+	spacekey          equ 39h
+	enterkey          equ 1Ch
 
 	spaceto           dw  23
 	;variables used in the game timer
 	seconds           db  99
-	timer             dw  100
+	timer             dw  99
 	p1speedtimer      dw  '0'
 	p2speedtimer      dw  '0'
 	p1damagetimer     dw  '0'
@@ -766,6 +766,12 @@
 	Msg               db  40 dup(" "),'$'
 	PressedKey        db  ?
 	
+	NumMsgSentingame        db  20
+	NumMsgRecivedingame     db  20
+	MsgSendIndixingame      db  0
+	MsgReceivedIndixingame  dw  0
+	Msgingame               db  20 dup(" "),'$'
+
 	name1             db  15
 	                  db  ?                                                                                                                                                                                	;CHARACTERS ENTERED BY USER.
 	                  db  16 dup("$")
@@ -801,73 +807,78 @@ Main proc Far
 
 	                          mov   ax,@data
 	                          mov   ds,ax
-	                          mov   ah, 0
+							  				;video mode configurations
+	                          mov   ah, 0		
 	                          mov   al, 13h
 	                          int   10H
-							  call  getnamesandprint
+							  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+	                          call  getnamesandprint		;;Function to get the names of the two players and print
+
+
+							  								;; Beginning of main menu loop
 	mainmenu:                 
-	                          call  flushkeybuffer
+	                          call  flushkeybuffer			;;flush the keyboard buffer after input
                  
-	                          call  DrawZ
-	                          call  Drawballs
-	                          call  Drawicon
+	                          call  DrawZ					;; Draw Z letter Logo
+	                          call  Drawballs				;; Draw balls in the logo
+	                          call  Drawicon				;; Draw the selection icon
 	;page number=always zero
-	                          Print 10,2,menu,20,0fh
+
+							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Print text in the main menu
+	                          Print 10,2,menu,20,0fh		
 	                          Print 17,15,playmsg,4,0fh
 	                          Print 17, 17, chatmsg,4,0fh
 	                          Print 17,19,Exitmsg,4,0fh
 	                          Print 0,22,instmsg1,30,0fh
 	                          Print 0,24,instmsg2,31,0fh
+							  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+							  					;;wait for input key in the menu
 	waitforkey:               mov   ah, 01
 	                          int   16h
 	                          JZ    waitforkey
 	                          mov   ah,0
 	                          int   16h
 							  
-	mainmenuarrowup:          cmp   ax,arrowup
+	mainmenuarrowup:          cmp   ah,arrowup					;; move up in case of arrow up
 	                          jne   mainmenuarrowdown
 	                          call  clearicon
 	                          mov   ax,icony
 	                          cmp   ax,116
-	                          je    mainmenu
-	;call  clearicon
+	                          je    mainmenu					;; jump back to main menu in case no key pressed
 	                          sub   ax,16
 	                          mov   icony,ax
-	                          call  flushkeybuffer
+	                          call  flushkeybuffer				;;move to the upper selection
 	                          jmp   mainmenu
 	mainmenuarrowdown:        
-	                          cmp   ax,arrowdown
+	                          cmp   ah,arrowdown			;; move down in case of arrow down
 	                          jne   mainmenuenter
-	                          call  clearicon
+	                          call  clearicon				;; jump back to main menu in case no key pressed
 	                          mov   ax,icony
 	                          cmp   ax,148
-	                          je    mainmenu
+	                          je    mainmenu					;;move to the lower selection
 	;call  clearicon
 	                          add   ax,16
 	                          mov   icony,ax
-	                          call  flushkeybuffer
+	                          call  flushkeybuffer				;;flush keybuffer
 	                          jmp   mainmenu
 
 	mainmenuenter:            
-	                          cmp   ax,enterkey
+	                          cmp   ah,enterkey					;; action in case enter key pressed
 	                          jne   mainmenu
 	                          mov   ax,icony
-	                          cmp   ax,116
-	                          je    PLAY
+	                          cmp   ax,116	
+	                          je    PLAY							;; Go to the game
 	                          cmp   ax,132
-	                          je    Chat
+	                          je    Chat							;; Go to the chat
 	                          cmp   ax,148
-	                          je    endgame
-	                          jmp   mainmenu
+	                          je    endgame						;;; end the game
+	                          jmp   mainmenu	
 							                         
 	;compare to available options
-	                          cmp   ah,4
-	                          jz    endgame
-	                          cmp   ah,3
-	                          jz    CHAT
-	                          cmp   ah,2
-	                          jz    PLAY
-	                          jmp   endgame
+
+	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Chatting main Loop ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+	                        
 	CHAT:                     
 	                          mov   dx,3fbh                    	; Line Control Register
 	                          mov   al,10000000b               	;Set Divisor Latch Access Bit
@@ -891,15 +902,15 @@ Main proc Far
 	                          out   dx,al
 	                          call  DrawLine
 	Start:                    
-	                          call  MsgRec
+	                          call  MsgRec				;; procedure to recive the message 
 	                          cmp   al,1bh
-	                          jne   resume
+	                          jne   resume				;; end chat in case of esc pressed
 	                          jmp   end2
 	resume:                   
-	                          call  MsgSend
-	                          cmp   NumMsgSent,11
-	                          je    end3
-	                          cmp   al,1bh
+	                          call  MsgSend				;;procedure to send a message
+	                         ; cmp   NumMsgSent,11
+	                         ; je    end3
+	                          cmp   al,1bh				;;end chat if esc is pressed
 	                          jne   Start
 
 	end2:                     
@@ -907,27 +918,29 @@ Main proc Far
 	                          mov   al,13H
 	                          int   10h
 	end3:                     
-	                          jmp   mainmenu
+	                          jmp   mainmenu			;; Jump back to main menu
                                 
 	PLAY:                     
-	                          call  transition
+	                          call  transition			;; A transistion is called
 
 	maingameloop:             
-	                          call  CheckforRoundend
-	                          call  terminateandgetwinner
+	                          call  CheckforRoundend			;;Procedure to check if one of the two players won the round
+	                          call  terminateandgetwinner		;; Procedure to checki if the game is terminated
 	;///////////////////////////////
-	                          call  Initializepowerups
-	                          call  Drawobjects
-	                          call  getinput
-	                          call  delay
-	                          call  clearobjects
-	                          call  updateobjects
-	                          call  updatecoins
-	                          call  updatepowerups
+	                          call  Initializepowerups			;; Intializing power ups
+	                          call  Drawobjects					;;Drawing our game objects
+							  call PORTS_INTLIZATION			;; Port intialization procedure
+	                          call  SendInput					;;Sending serial port input
+	                          call  RecieveInput				;;Recieving Serial port output
+	                          call  delay						;; A delay procedure
+	                          call  clearobjects				;;clearing game objects function
+	                          call  updateobjects				;;updating game objects function
+	                          call  updatecoins					;;updating coins function
+	                          call  updatepowerups				;;updating powerups function
 	;///////////////////////////////////////////
 	timeloop:                 
 	;GET SYSTEM TIME.
-	                          mov   ah, 2ch
+	                          mov   ah, 2ch						;; configuration to get system time
 	                          int   21h                        	;RETURN SECONDS IN DH.
 	;CHECK IF ONE SECOND HAS PASSED.
 	                          cmp   dh, seconds
@@ -940,41 +953,47 @@ Main proc Far
 
 
 
-
+							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; check the speed timer of player 1
 	                          mov   ax,p1speedtimer
 	                          cmp   ax,'0'
-	                          jne   decp1speedtimer
+	                          jne   decp1speedtimer	
 	                          jmp   player2speedtime
-
+							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; decrement speedtimer of player 1
 	decp1speedtimer:          dec   ax
 	                          mov   p1speedtimer, ax
 	                          mov   ax,p1speedtimer
 	                          cmp   ax,'0'
 	                          je    returnbacktoitsspeed
 	                          jmp   player2speedtime
+							  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; return player 1 to its original speed
 	returnbacktoitsspeed:     
 	                          mov   bx,7
 	                          mov   player1velocity,bx
+
+							  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; check player 2 speedtimer
 	player2speedtime:         
 	                          mov   ax,p2speedtimer
 	                          cmp   ax,'0'
 	                          jne   decp2speedtimer
 	                          jmp   player1damagetime
-
+							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; return player 2 to its original speed
 	decp2speedtimer:          dec   ax
 	                          mov   p2speedtimer, ax
 	                          cmp   ax,'0'
 	                          je    returnbacktoitsspeed2
 	                          jmp   player1damagetime
+							  ;;;;;;;;;;;;;;;;;;;;;;;;;;    return player 2 to its original speed
 	returnbacktoitsspeed2:    
 	                          mov   bx,7
 	                          mov   player2velocity,bx
-
+							;;;;;;;;;;;;;;;;;;;;;;;;;;; check player 1 damage timer
 	player1damagetime:        
 	                          mov   ax,p1damagetimer
 	                          cmp   ax,'0'
 	                          jne   decp1damagetimer
 	                          jmp   player2damagetime
+
+							  ;;;;;;;;;;;;;;;;;;;;;;;; return player 1 to its original damage
 	decp1damagetimer:         
 	                          dec   ax
 	                          mov   p1damagetimer, ax
@@ -985,10 +1004,12 @@ Main proc Far
 	                          cmp   ax,'0'
 	                          je    returnbacktoitsdamage
 	                          jmp   player2damagetime
+							  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; return the damgae of player 1 to its original damage
 	returnbacktoitsdamage:    
 	                          mov   bx,5
 	                          mov   p1damage,bx
 
+							;;;;;;;;;;;;;;;;;;;;;;;;;;; check player 2 damage timer
 
 
 	player2damagetime:        
@@ -1001,11 +1022,14 @@ Main proc Far
 	                          mov   p2damagetimer, ax
 	; if the timer is 0 then exit
 	       
+							  ;;;;;;;;;;;;;;;;;;;;;;;; return player 2 to its original damage
 
 	                          mov   ax,p2damagetimer
 	                          cmp   ax,'0'
 	                          je    returnbacktoitsdamage2
 	                          jmp   player1freezetime
+							  							  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; return the damgae of player 1 to its original damage
+
 	returnbacktoitsdamage2:   
 	                          push  bx
 	                          mov   bx,5
@@ -1051,28 +1075,30 @@ Main proc Far
 	                          mov   player2velocity,bx
 	                          mov   bl, 0
 	                          mov   p2isfreezed,bl
-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; check for the game timer
 	continueLoop:             
 
 	                          mov   ax,timer
 	                            
 	;/////////////////////////////////////
+
 	
-	LOOPTOGAME:               jmp   maingameloop
+	LOOPTOGAME:               jmp   maingameloop			;;;; return to main game loop
 
 					          
 
 
-	endgame:                  
+	endgame:                  					;;Terminate the game label
 	                          mov   ah,0
 	                          mov   al,3
 	                          int   10h
 	
 	                          mov   ax, 4c00h
 	                          int   21h
+							  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Main ENDP
 
-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Port intialization procedure
 PORTS_INTLIZATION PROC
 	                          Mov   dx,3fbh
 	                          mov   al,10000000b
@@ -1088,11 +1114,12 @@ PORTS_INTLIZATION PROC
 	                          out   dx,al
 	                          RET
 PORTS_INTLIZATION ENDP
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-	;draws first player health
+;draws first player health
 FirstHealthBar PROC
 	                          mov   cx,10                      	;Column
-	                          mov   dx,150                     	;Row
+	                          mov   dx,130                     	;Row
 	                          mov   al,0fh                     	;Pixel color
 	                          mov   ah,0ch                     	;Draw Pixel Command
 	first1:                   int   10h
@@ -1100,25 +1127,25 @@ FirstHealthBar PROC
 	                          cmp   cx,100
 	                          jnz   first1
 	                          mov   cx,10                      	;Column
-	                          mov   dx,154                     	;Row
+	                          mov   dx,134                     	;Row
 	first2:                   int   10h
 	                          inc   cx
 	                          cmp   cx,100
 	                          jnz   first2
 	                          mov   cx,10                      	;Column
-	                          mov   dx,150                     	;Row
+	                          mov   dx,130                     	;Row
 	first3:                   int   10h
 	                          inc   dx
-	                          cmp   dx,154
+	                          cmp   dx,134
 	                          jnz   first3
 	                          mov   cx,100                     	;Column
-	                          mov   dx,150
+	                          mov   dx,130
 	first4:                   int   10h
 	                          inc   dx
-	                          cmp   dx,155
+	                          cmp   dx,135
 	                          jnz   first4
 	                          mov   cx,11                      	;Column
-	                          mov   dx,151                     	;Row
+	                          mov   dx,131                     	;Row
 	                          mov   al,04h                     	;Pixel color
 	first5:                   
 	                          int   10h
@@ -1126,7 +1153,7 @@ FirstHealthBar PROC
 	                          int   10h
 	                          inc   dx
 	                          int   10h
-	                          mov   dx,151
+	                          mov   dx,131
 	                          inc   cx
 	                          cmp   cx,PLayer1Health
 	                          jnz   first5
@@ -1136,7 +1163,7 @@ FirstHealthBar ENDP
 	;draws seconed player health
 SeconedHealthBar PROC
 	                          mov   cx,220                     	;Column
-	                          mov   dx,150                     	;Row
+	                          mov   dx,130                     	;Row
 	                          mov   al,0fh                     	;Pixel color
 	                          mov   ah,0ch                     	;Draw Pixel Command
 	seconed1:                 int   10h
@@ -1144,32 +1171,32 @@ SeconedHealthBar PROC
 	                          cmp   cx,310
 	                          jnz   seconed1
 	                          mov   cx,220                     	;Column
-	                          mov   dx,154                     	;Row
+	                          mov   dx,134                     	;Row
 	seconed2:                 int   10h
 	                          inc   cx
 	                          cmp   cx,310
 	                          jnz   seconed2
 	                          mov   cx,220                     	;Column
-	                          mov   dx,150                     	;Row
+	                          mov   dx,130                     	;Row
 	seconed3:                 int   10h
 	                          inc   dx
-	                          cmp   dx,154
+	                          cmp   dx,134
 	                          jnz   seconed3
 	                          mov   cx,310                     	;Column
-	                          mov   dx,150
+	                          mov   dx,130
 	seconed4:                 int   10h
 	                          inc   dx
-	                          cmp   dx,155
+	                          cmp   dx,135
 	                          jnz   seconed4
 	                          mov   cx,221                     	;Column
-	                          mov   dx,151                     	;Row
+	                          mov   dx,131                     	;Row
 	                          mov   al,01h                     	;Pixel color
 	seconed5:                 int   10h
 	                          inc   dx
 	                          int   10h
 	                          inc   dx
 	                          int   10h
-	                          mov   dx,151
+	                          mov   dx,131
 	                          inc   cx
 	                          cmp   cx,PLayer2Health
 	                          jnz   seconed5
@@ -1236,18 +1263,18 @@ Damage2 PROC
 	                          ret
 Damage2 ENDP
 
-	;Appearing text
+	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Appearing text Procedure ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Text PROC
 	                          mov   si,@data                   	;moves to si the location in memory of the data segment
 	                          mov   ah,13h                     	;service to print string in graphic mode
 	                          mov   al,0                       	;sub-service 0 all the characters will be in the same color(bl) and cursor position is not updated after the string is written
 	                          mov   bh,0                       	;page number=always zero
-	                          Print 65,199,name1+2,7,0fh
-	                          Print 92,199,name2+2,7,0fh
-	                          Print 92,201,msglives,1,0ch
-	                          Print 65,201,msglives,1,0ch
-	                          Print 94,201,lives2,1,0fh
-	                          Print 67,201,lives1,1,0fh
+	                          Print 65,198,name1+2,7,0fh
+	                          Print 92,198,name2+2,7,0fh
+	                          Print 92,196,msglives,1,0ch
+	                          Print 65,196,msglives,1,0ch
+	                          Print 94,196,lives2,1,0fh
+	                          Print 67,196,lives1,1,0fh
 	                          Print 16,2,round,6,0fh
 	                          Print 22,2 roundnum,1,0fh
 	                          Print 10,3,timermsg,15,0fh
@@ -1256,17 +1283,17 @@ Text PROC
 
 
 	;;;;;;;;DINA;;;;;;;;;;;
-	                          Print 65,203,msg3,6,0fh
-	                          Print 92,203,msg3,6,0fh
+	                          Print 65,197,msg3,6,0fh
+	                          Print 92,197,msg3,6,0fh
 
-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Handling the logic of printing timer numbers
 	                          mov   cx,score1
 	                          mov   di,10
 	                          cmp   cx,di
 	                          jl    putspace1
 	                          jmp   itsokaytoprintit1
 	putspace1:                
-	                          mov   dh,203
+	                          mov   dh,197
 	                          mov   dl,72
 	                          mov   ah,02h
 	                          int   10h
@@ -1276,11 +1303,11 @@ Text PROC
 	                          jmp   itsokaytoprintit1
 
 	itsokaytoprintit1:        
-	                          mov   dh,203                     	;y coordinate
+	                          mov   dh,197                     	;y coordinate
 	                          mov   dl,71                      	;x coordinate
 	                          mov   ah,02h
 	                          int   10h
-	                          mov   ax,score1
+	                          mov   ax,score1				;; printing score1
 	                          call  printnumbers
 
 
@@ -1291,7 +1318,7 @@ Text PROC
 	                          jl    putspace2
 	                          jmp   itsokaytoprintit2
 	putspace2:                
-	                          mov   dh,203
+	                          mov   dh,197
 	                          mov   dl,99
 	                          mov   ah,02h
 	                          int   10h
@@ -1302,14 +1329,14 @@ Text PROC
 
 	itsokaytoprintit2:        
 
-	                          mov   dh,203                     	;y coordinate
+	                          mov   dh,197                     	;y coordinate
 	                          mov   dl,98                      	;x coordinate
 	                          mov   ah,02h
 	                          int   10h
-	                          mov   ax,score2
+	                          mov   ax,score2				;printing score2
 	                          call  printnumbers
 
-	;;;;;;;;;;printing game timer;;;;;;;
+	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;printing game timer;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	                          mov   cx,timer
 	                          mov   di,10
 	                          cmp   cx,di
@@ -1525,7 +1552,9 @@ Text PROC
 	endtext:                  
 	                          ret
 Text ENDP
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;;;;;;;;;; Priting numbers procedure;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 printnumbers proc
 	                          push  ax
 							
@@ -1551,7 +1580,11 @@ printnumbers proc
 	                          pop   ax
 	                          ret
 printnumbers endp
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+
+
+;;;;;;;;;;;;;;;;;;;;;;; Drawing a transition procedure;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 transition proc
 	                          mov   ah,0ch
 	                          mov   al,00h
@@ -1572,13 +1605,17 @@ transition proc
 
 	                          RET
 transition endp
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+
+;;;;;;;;;;;;;;;;;;;;; Function for drawing background ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 drawBack proc near
 	                          mov   ah,0ch
 	                          mov   al,0fh
 	                          mov   bh,00h
 	                          mov   cx,32
-	startb:
+							  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Drawing the earth image ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+	startb:                   
 	                          mov   dx,24
 	start2:                   
 	                          int   10h
@@ -1607,7 +1644,7 @@ drawBack proc near
 	                          jz    l
 	                          int   10h
 
-
+								;;;;;;;;;;;;;;;;;;;;;;;;;;; Drawing Starts in the background
 	l:                        
 	                          inc   di
 	                          dec   cx
@@ -1623,6 +1660,7 @@ drawBack proc near
 	                          RET
 drawBack ENDP
 
+;;;;;;;;;;;;;;;;;;;;;;;;;; Drawing balls in the mainmenu;;;;;;;;;;;;;;;;;;;;;;;;
 Drawballs proc	near
 
 	                          mov   cx,132
@@ -1658,7 +1696,9 @@ Drawballs proc	near
 	terminateballs:           
 	                          RET
 Drawballs endp
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;;;;;;;;;;;;;;;;;;;;Drawing Z logo in the background;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 DrawZ proc	near
 
 	                          mov   cx,120
@@ -1694,9 +1734,9 @@ DrawZ proc	near
 	terminatezz:              
 	                          RET
 DrawZ endp
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
-
+;;;;;;;;;;Drawing the selection icon procedure ;;;;;;;;;;;;;;;;;;;;;;;;;
 Drawicon proc	near
 
 	                          mov   cx,iconx
@@ -1735,7 +1775,9 @@ Drawicon endp
 
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Drawiing player 1 proc ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 DrawPlayer1 proc near
 
 	                          mov   ah,0bh
@@ -1792,6 +1834,11 @@ DrawPlayer1 proc near
 	                          RET
 DrawPlayer1 ENDP
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Drawiing player 2 proc ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
 DrawPlayer2 proc near
 	                          mov   ah,0bh
 	                          mov   cx,player2x
@@ -1846,6 +1893,9 @@ DrawPlayer2 proc near
 	                          mov   p2hit,bl
 	                          RET
 DrawPlayer2 ENDP
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Drawiing fireball 1 proc ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 Drawfireball proc near
 	                          mov   al,isfiring
@@ -1887,6 +1937,10 @@ Drawfireball proc near
 	                          RET
 Drawfireball ENDP
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Drawiing fireball2  proc ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 Drawfireball2 proc near
 	                          mov   al,isfiring2
 	                          cmp   al,1
@@ -1926,7 +1980,9 @@ Drawfireball2 proc near
 	terminate4:               
 	                          RET
 Drawfireball2 ENDP
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Drawiing coins proc ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Drawcoins PROC near
 
 	                          push  di
@@ -2008,10 +2064,9 @@ Draweachcoin proc near
 	                          pop   di
 	                          RET
 Draweachcoin ENDP
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
-	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-	;;;;;;;;;;;;;;;;;;;   Delay proc nearedure      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Drawiing Health powerup proc ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 DrawHealthPowerUp PROC near
 
 							
@@ -2053,7 +2108,9 @@ DrawHealthPowerUp PROC near
 	healthterminate:          
 	                          RET
 DrawHealthPowerup ENDP
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Drawiing speed power up proc ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 DrawspeedPowerUp PROC near
 
 							
@@ -2095,7 +2152,9 @@ DrawspeedPowerUp PROC near
 	speedterminate:           
 	                          RET
 DrawSpeedPowerup ENDP
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Drawiing freeze power up proc ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 DrawfreezePowerUp PROC near
 
@@ -2141,7 +2200,9 @@ DrawfreezePowerup ENDP
 
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Drawiing damage power up proc ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 DrawdamagePowerUp PROC near
 
 							
@@ -2184,6 +2245,9 @@ DrawdamagePowerUp PROC near
 	                          RET
 DrawdamagePowerUp ENDP
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Drawiing score power up proc ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 DrawdecscorePowerUp PROC near
 
 							
@@ -2226,6 +2290,9 @@ DrawdecscorePowerUp PROC near
 	                          RET
 DrawdecscorePowerup ENDP
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Procedure that calls all the drawing procedures ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 Drawobjects proc near
 	                          call  drawBack
@@ -2248,6 +2315,8 @@ Drawobjects proc near
 	                          RET
 Drawobjects ENDP
 
+
+;;;;;;;;;;;;;;;;;;;; DElay procedure ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 delay proc near
 	                          mov   cx,0
 	                          mov   dx,25000
@@ -2265,67 +2334,90 @@ flushkeybuffer proc near
 	                          RET
 flushkeybuffer endp
 	;;;;;;;;;;;;;; checkinput for player 1  proc ;;;;;;;
-getinput proc near
-	                          push  ax
-	                          push  bx
+
+
+	;;;;;;;;;;;;;;;;;;;;;; Sending serial input proc;;;;;;;;;;;;;;;;;;;;;;;;;
+SendInput proc near
+	COM1Section:              
+	                          
 	                          mov   ah,01h
 	                          int   16h
+							  jz endinput
 
-	                          cmp   ax, Wkey
+	                          mov   dx , 3FDH                  	; Line Status Register
+	AGAIN200:                 In    al , dx                    	;Read Line Status
+	                          test  al , 00100000b
+	                          JZ    AGAIN200                   	;Not empty
+	;If empty put the VALUE in Transmit data register
+	                          mov   dx , 3F8H                  	; Transmit data register
+	                          mov   al, 68d
+	                          mov   al,ah
+	                          out   dx , al
+							 
+
+	                          
+
+	                          cmp   ah, Wkey		;; check if wkey is pressed
 	                          jz    up
 
-	                          cmp   ax, Skey
+	                          cmp   ah, Skey		;; check if skey is pressed
 	                          jz    down
 
-	                          cmp   ax, Dkey
+	                          cmp   ah, Dkey		;; check if Dkey is pressed
 	                          jz    right
 
-	                          cmp   ax, Akey
+	                          cmp   ah, Akey		;; check if Akey is pressed
 	                          jz    left
 	                          jmp   freeze1
 
 
 
 	up:                       
-	                          call  flushkeybuffer
+	                          call  flushkeybuffer		;; make p1 move up
 	                          mov   bl, updirection
 	                          mov   input, bl
 	                          jmp   nextinput1
 
 	down:                     
-	                          call  flushkeybuffer
+	                       
+	                          call  flushkeybuffer			;; make p1 move down
 	                          mov   bl, downdirection
 	                          mov   input, bl
 	                          jmp   nextinput1
 
 	right:                    
-	                          call  flushkeybuffer
+	                          call  flushkeybuffer		;; make p1 move right
 	                          mov   bl, rightdirection
 	                          mov   input, bl
 	                          jmp   nextinput1
 
 	left:                     
-	                          call  flushkeybuffer
+	                         
+	                          call  flushkeybuffer			;; make p1 move left
 	                          mov   bl, leftdirection
 	                          mov   input, bl
 	                          jmp   nextinput1
 
 	freeze1:                  
-	                          mov   bl, nomove
+	                        
+	                          mov   bl, nomove				;; check if it is freezed
 	                          mov   input, bl
 	                          jmp   nextinput1
 
 	nextinput1:               
-	                          cmp   ax, arrowup
+	                          cmp   ah, arrowup			;; ;; make p2 move up
 	                          jz    up2
 
-	                          cmp   ax, arrowdown
+	                        
+	                          cmp   ah, arrowdown		;; ;; make p2 move down
 	                          jz    down2
 
-	                          cmp   ax, arrowright
+	                        
+	                          cmp   ah, arrowright	;; ;; make p2 move right
 	                          jz    right2
 
-	                          cmp   ax, arrowleft
+	                     
+	                          cmp   ah, arrowleft		;; ;; make p2 move left
 	                          jz    left2
 	                          jmp   freeze2
 
@@ -2359,7 +2451,8 @@ getinput proc near
 	                          jmp   nextinput2
 
 	nextinput2:               
-	                          cmp   ax,spacekey
+	                        
+	                          cmp   ah,spacekey
 	                          jz    fire
 	                          jmp   nextinput3
 
@@ -2388,9 +2481,10 @@ getinput proc near
 	                          jmp   nextinput3
 
 	nextinput3:               
-	                          cmp   ax,enterkey
+	                         
+	                          cmp   ah,enterkey
 	                          jz    fire2
-	                          jmp   endinput
+	                          jmp   gochat
 
 	fire2:                    
 	                          call  flushkeybuffer
@@ -2417,14 +2511,215 @@ getinput proc near
 	                          jmp   endinput
 
 
+							
+	gochat:                  
+								 cmp   ah,0fh
+	                          jne   endinput
+							  call flushkeybuffer
+							  call Ingamechat
+							
 
 	endinput:                 
-	                          call  flushkeybuffer
-	                          pop   bx
-	                          pop   ax
+	                          
 	                          RET
-getinput ENDP
+SendInput ENDP
 	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+RecieveInput proc near
+
+	                          Mov   dx,3fdh
+	CHK:                      
+	                          In    al,dx
+	                          test  al,1
+	                          Jz    endinputcom2
+	                          Mov   dx,03f8h
+	                          in    al,dx
+							  jz endinputcom2
+	                          mov   ah,al
+
+							  
+							 
+
+	                          
+							  
+	                          cmp   ah, arrowup
+	                          jz    upcom2
+
+	                          
+	                          cmp   ah, arrowdown
+	                          jz    downcom2
+
+							 
+	                          cmp   ah, arrowright
+	                          jz    leftcom2
+							  
+							 
+	                          cmp   ah, arrowleft
+	                          jz    rightcom2
+	                          jmp   freeze1com2
+
+
+
+	upcom2:                   
+	                          call  flushkeybuffer
+	                          mov   bl, updirection
+	                          mov   input, bl
+	                          jmp   nextinput1com2
+
+	downcom2:                 
+	                          
+	                          call  flushkeybuffer
+	                          mov   bl, downdirection
+	                          mov   input, bl
+	                          jmp   nextinput1com2
+
+	rightcom2:                
+	                         
+	                          call  flushkeybuffer
+	                          mov   bl, rightdirection
+	                          mov   input, bl
+	                          jmp   nextinput1com2
+
+	leftcom2:                 
+	                          
+	                          call  flushkeybuffer
+	                          mov   bl, leftdirection
+	                          mov   input, bl
+	                          jmp   nextinput1com2
+
+	freeze1com2:              
+	                          mov   bl, nomove
+	                          mov   input, bl
+	                          jmp   nextinput1com2
+
+	nextinput1com2:           
+	                        
+	                          cmp   ah, Wkey
+	                          jz    up2com2
+
+	                       
+	                          cmp   ah, Skey
+	                          jz    down2com2
+
+	                          cmp   ah, Dkey
+	                          jz    left2com2
+
+	                          cmp   ah, Akey
+	                          jz    right2com2
+	                          jmp   freeze2com2
+
+	up2com2:                  
+	                          call  flushkeybuffer
+	                          mov   bl, updirection
+	                          mov   input2, bl
+	                          jmp   nextinput2com2
+
+	down2com2:                
+	                          call  flushkeybuffer
+	                          mov   bl, downdirection
+	                          mov   input2, bl
+	                          jmp   nextinput2com2
+
+	right2com2:               
+	                          call  flushkeybuffer
+	                          mov   bl, rightdirection
+	                          mov   input2, bl
+	                          jmp   nextinput2com2
+
+	left2com2:                
+	                          call  flushkeybuffer
+	                          mov   bl, leftdirection
+	                          mov   input2, bl
+	                          jmp   nextinput2com2
+
+	freeze2com2:              
+	                          mov   bl, nomove
+	                          mov   input2, bl
+	                          jmp   nextinput2com2
+
+	nextinput2com2:           
+	                       
+	                          cmp   ah,enterkey
+	                          jz    firecom2
+	                          jmp   nextinput3com2
+
+	firecom2:                 
+	                          call  flushkeybuffer
+	                          mov   bl, isfiring
+	                          cmp   bl,1
+	                          jnz   checkifp1freezecom2
+	                          jmp   nextinput3com2
+	checkifp1freezecom2:      
+	                          mov   bl,p1isfreezed
+	                          cmp   bl,1
+	                          jne   startfiringcom2
+	                          jmp   nextinput3com2
+
+	startfiringcom2:          
+	                          call  flushkeybuffer
+	                          mov   bl,1
+	                          mov   byte ptr [isfiring], bl
+	                          mov   bx,player1x
+	                          add   bx,10
+	                          mov   fireball1x, bx
+	                          mov   bx, player1y
+	                          add   bx,10
+	                          mov   fireball1y, bx
+	                          jmp   nextinput3com2
+
+	nextinput3com2:           
+	                         
+	                          cmp   ah,spacekey
+	                          jz    fire2com2
+	                          jmp   gochatcom2
+
+	fire2com2:                
+	                          call  flushkeybuffer
+	                          mov   bl, isfiring2
+	                          cmp   bl,1
+	                          jnz   checkifp2freezecom2
+	                          jmp   gochatcom2
+	checkifp2freezecom2:      
+	                          mov   bl,p2isfreezed
+	                          cmp   bl,1
+	                          jne   startfiring2com2
+	                          jmp   gochatcom2
+
+	startfiring2com2:         
+	                          call  flushkeybuffer
+	                          mov   bl,1
+	                          mov   byte ptr [isfiring2], bl
+	                          mov   bx,player2x
+	                          sub   bx,10
+	                          mov   fireball2x, bx
+	                          mov   bx, player2y
+	                          add   bx,10
+	                          mov   fireball2y, bx
+	                          jmp   gochatcom2
+
+	gochatcom2:               cmp   ah,0fh
+	                          jne   endinputcom2
+							  call Ingamechat
+
+	endinputcom2:             
+	                          
+	                          RET
+RecieveInput ENDP
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 	;;;;;;;;;;; update player 1 proc near ;;;;;;;;;;;;;;;;
 updateobjects proc near
@@ -4282,11 +4577,185 @@ MsgSend proc
 
 MsgSend endp
 
+MsgSendingame proc
+	                          mov   di,offset Msgingame             	;new massage
+	                          add   di,MsgReceivedIndixingame       	;to put char after the last char written
+
+	Loop1Sendingame:                
+	                          mov   dx , 3FDH
+	Checkingame:                    
+	                          In    al , dx
+	                          test  al ,00100000b
+	                          JZ    Checkingame
+	                          mov   dx,3f8h
+	                          mov   ah,0bh
+	                          int   21h
+	                          cmp   al,0
+	                          je    Escapeingame
+	                          mov   dl,0
+	                          mov   dh,NumMsgSentingame
+	                          add   dl,MsgSendIndixingame
+	                          mov   ah,2
+	                          int   10h
+	                          mov   ah,1
+	                          int   21h
+	                          mov   dx , 3F8H
+	                          out   dx , al
+	                          inc   MsgSendIndixingame
+	                          cmp   MsgSendIndixingame,20            	;---------------------------------
+	                          je    hereingame
+	backingame:                     cmp   al,1bh
+	                          je    Escapeingame                     	;if esc is pressed end program
+	                          cmp   al,08h
+	                          je    BackSpaceingame                  	;if backspace is pressed
+	                          cmp   al,0dh
+	                          jne   Escapeingame
+
+	                          mov   dl,0
+	                          mov   dh,NumMsgSentingame             	;to move in correct Y pos
+	                          mov   ah,2
+	                          int   10h
+
+	                          mov   MsgSendIndixingame,0
+	                          inc   NumMsgSentingame
+	                          cmp   NumMsgSentingame,24
+	                          jne   Escapeingame
+	;clear screen
+	                          mov   si,160
+	                          mov   di,200
+	                          mov   cx, 0
+	                          mov   ah,0ch
+	                          mov   al,00h
+	Clearingame:                    
+	                          mov   dx,160
+
+	Clear2ingame:                   
+	                          int   10h
+	                          inc   dx
+	                          cmp   dx, di
+	                          jnz   Clear2ingame
+
+	                          inc   cx
+	                          cmp   cx, si
+	                          jnz   Clearingame
+	                          mov   NumMsgSentingame,20
+
+	Escapeingame:                   
+	                          ret
+	; here:            dec  MsgSendIndix
+	;                  jmp  Check
+	hereingame:                     dec   MsgSendIndixingame
+	;sub  MsgReceivedIndix,2
+	                          jmp   backingame
+	; mov  MsgSendIndix,0
+	;add  NumMsgSent,1
+	                 
+	                 
+
+
+	BackSpaceingame:                
+	                          mov   ah,2
+	                          mov   dl,''
+	                          int   21h
+	                          sub   MsgSendIndixingame,1
+	                          cmp   MsgSendIndixingame,0
+	                          je    Escapeingame
+	                          sub   MsgSendIndixingame,1
+	                          jmp   Escapeingame
+
+
+MsgSendingame endp
 
 
 
 
 
+
+MsgRecingame proc
+	;char input
+	;check that the regester is ready to receive char
+	loop1Receivedingame:            
+	                          mov   dx,3FDH                    	; Line Status Register
+	                          in    al,dx
+	                          test  al,1
+	                          JZ    Escape2ingame                  	;if not ready jumb
+
+	                          mov   dx , 03F8H
+	                          in    al , dx
+	                          cmp   al,1bh
+	                          je    Escape2ingame                   	;if Esc is pressed end program
+	                          cmp   al,0dh
+	                          je    SendMsgAndDowningame             	;if enter is pressed send message go down one line
+	                          cmp   al,08h
+	                          je    Eraseingame                    	;if backspace is pressed delete last character by dec [MsgReceived]
+	                          mov   [di] , al
+	                          inc   MsgReceivedIndixingame
+	                          cmp   MsgReceivedIndixingame,19
+	                          je    here2ingame
+	back2ingame:              jmp   loop1Receivedingame
+
+	Escape2ingame:                  
+	                          ret
+
+	Eraseingame:                                                     	;mov  ah,2
+	;  mov  dl,'.'
+	;  int  21h
+	                          cmp   MsgReceivedIndixingame,20
+	                          je    loop1Receivedingame
+	                          mov   [di], " "
+	                          dec   di
+	                          mov   [di]," "
+	                          sub   MsgReceivedIndixingame,1
+	                          jmp   loop1Receivedingame
+
+
+	here2ingame:              dec   MsgReceivedIndixingame
+	                          jmp   back2ingame
+
+
+	SendMsgAndDowningame:           
+	;set cursor
+	                          mov   ah,02
+	                          mov   dh,0
+	                          add   dh,NumMsgRecivedingame
+	                          mov   dl,21
+	                          int   10h
+	                          mov   ah,9
+	                          mov   dx, offset msgingame
+	                          int   21h
+	                          inc   NumMsgRecivedingame
+	                          cmp   NumMsgRecivedingame,24
+	                          jne   contingame
+	;clear screen
+	                          mov   si,320
+	                          mov   di,200
+	                          mov   cx, 160
+	                          mov   ah,0ch
+	                          mov   al,00h
+	Clear3ingame:                   
+	                          mov   dx,160
+
+	Clear4ingame:                   
+	                          int   10h
+	                          inc   dx
+	                          cmp   dx, di
+	                          jnz   Clear4ingame
+
+	                          inc   cx
+	                          cmp   cx, si
+	                          jnz   Clear3ingame
+
+	                          mov   NumMsgRecivedingame,20
+	contingame:                     
+	                          mov   MsgReceivedIndixingame,0
+	                          mov   cx,19
+	                          mov   si,offset msgingame
+	NewMsgingame:                   
+	                          mov   [si], " "
+	                          inc   si
+	                          loop  NewMsgingame
+	                          jmp   loop1Receivedingame
+MsgRecingame endp
 
 MsgRec proc
 	;char input
@@ -4375,6 +4844,72 @@ MsgRec proc
 MsgRec endp
 
 
+clearchatsection proc near
+
+mov cx,0
+mov dx,160
+mov ah,0ch
+mov al,00h
+
+clearchat:
+mov dx,160
+clearchat2:
+
+int 10h
+inc dx
+cmp dx,240
+jnz clearchat2
+inc cx
+cmp cx,320
+jnz clearchat
+
+RET
+endp clearchatsection
+
+Ingamechat proc near
+	                          mov   dx,3fbh                    	; Line Control Register
+	                          mov   al,10000000b               	;Set Divisor Latch Access Bit
+	                          out   dx,al                      	;Out it
+	;Set LSB byte of the Baud Rate Divisor Latch register.
+	                          mov   dx,3f8h
+	                          mov   al,0ch
+	                          out   dx,al
+	;Set MSB byte of the Baud Rate Divisor Latch register.
+	                          mov   dx,3f9h
+	                          mov   al,00h
+	                          out   dx,al
+	;Set port configuration
+	                          mov   dx,3fbh
+	                          mov   al,00011011b
+	;0:Access to Receiver buffer, Transmitter buffer
+	;0:Set Break disabled
+	;011:Even Parity
+	;0:One Stop Bit
+	;11:8bits
+	                          out   dx,al
+
+	Startchatingame:                    
+	                          call  MsgRecingame
+	                          cmp   al,1bh
+	                          jne   resumechatingame
+	                          jmp   end2chatingame
+	resumechatingame:                   
+	                          call  MsgSendingame
+	                          ;cmp   NumMsgSentingame,24
+	                          ;je    end3chatingame
+							
+	                          cmp   al,1bh
+	                          jne   Startchatingame
+
+	end2chatingame:                     
+	                    
+	end3chatingame:
+	    call clearchatsection                     
+		RET
+
+
+
+Ingamechat	endp
 End main
 
 
