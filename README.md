@@ -3,6 +3,9 @@ Welcome to Coins war ( Reviving Dragon ball Z characters Goku and Beerus )
 - To play the game navigate to main menu
 - Choose Play
 
+How to run the game ?
+--------------------------
+You need Dosbox to run the game
 
 How to play
 ---------------------------------------------------------
