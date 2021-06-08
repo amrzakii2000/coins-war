@@ -27,3 +27,13 @@ _ First player to win 2 rounds gets to win the game.
 
 Enjoy ;)
 --------------------
+
+# Screenshots
+-------------------------------------------
+![image](https://user-images.githubusercontent.com/62449903/121265336-f0894e00-c8b8-11eb-8154-13c9c7ac8cfe.png)
+![image](https://user-images.githubusercontent.com/62449903/121265361-f97a1f80-c8b8-11eb-9e3a-49d1aafb5f4c.png)
+![image](https://user-images.githubusercontent.com/62449903/121265373-fed76a00-c8b8-11eb-93f2-b74ea699f5e9.png)
+![image](https://user-images.githubusercontent.com/62449903/121265393-04cd4b00-c8b9-11eb-87f8-f536dbb59c8f.png)
+![image](https://user-images.githubusercontent.com/62449903/121265414-0ac32c00-c8b9-11eb-96db-b3ac79700eaa.png)
+![image](https://user-images.githubusercontent.com/62449903/121265428-10207680-c8b9-11eb-8d0f-326193f27bd7.png)
+
